@@ -1,0 +1,8 @@
+{
+    "crons": [
+        {
+            "path": "/api/cron/fetch?cron_token=TravelPulseToken123!",
+            "schedule": "0 * * * *"
+        }
+    ]
+}
