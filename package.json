@@ -33,8 +33,12 @@
     "cheerio": "^1.2.0",
     "lucide-react": "^1.18.0",
     "next": "^16.2.9",
-    "pg": "^8.21.0",
+    "pg": "^8.2.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
+  },
+  "optionalDependencies": {
+    "opencode-windows-x64": "^1.17.7",
+    "opencode-windows-x64-baseline": "^1.17.7"
   }
 }
