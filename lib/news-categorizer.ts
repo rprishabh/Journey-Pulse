@@ -540,7 +540,7 @@ export async function runCategorizationCycle(): Promise<CategorizationCycleResul
           }
         } else {
           totalFailed++;
-          const msg = `Categorization failed for "${article.title.slice(0, 50)}...": ${error?.message}`;
+          const msg = `Categorization failed for "${article.title.slice(0, 50)}...": ${aiError?.message}`;
           errors.push(msg);
           console.error(`[NewsCategorizer]   ❌ ${msg}`);
 
