@@ -452,3 +452,33 @@ model ExchangeRate {
   @@index([baseCurrency, targetCurrency])
   @@map("exchange_rates")
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GLOBAL FESTIVALS & EVENTS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/// Worldwide cultural festivals, music events, and major celebrations
+/// for time-sensitive "Upcoming Travel Alerts" with a 7-day window.
+model GlobalEvent {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String   @db.Text
+  location    String
+  country     String
+  countryCode String   @db.VarChar(3)
+  flagEmoji   String?  @db.VarChar(4)
+  imageUrl    String?
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+  category    String   @default("CULTURAL")
+  isRecurring Boolean  @default(true)
+  isActive    Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([startDate, endDate])
+  @@index([isActive, startDate])
+  @@map("global_events")
+}
