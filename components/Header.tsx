@@ -65,12 +65,12 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Discover India",
-    href: "/discover-india",
+    href: "/#daily-facts",
     icon: Sparkles,
     description: "Daily facts & hidden gems",
     children: [
-      { label: "Daily Facts", href: "/discover-india/daily-facts", icon: CalendarDays, description: "Today's India fact" },
-      { label: "Heritage & Culture", href: "/discover-india/heritage", icon: Building2, description: "UNESCO sites & monuments" },
+      { label: "Daily Facts", href: "/#daily-facts", icon: CalendarDays, description: "Today's India fact" },
+      { label: "Heritage & Culture", href: "/#tourism-timeline", icon: Building2, description: "UNESCO sites & monuments" },
     ],
   },
 ];
@@ -385,7 +385,7 @@ export function Header() {
                   🇮🇳 Discover India&apos;s hidden gems
                 </p>
                 <Link
-                  href="/discover-india/daily-facts"
+                  href="/#daily-facts"
                   className="btn btn-sm btn-primary w-full"
                 >
                   <Sparkles className="w-4 h-4" />

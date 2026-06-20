@@ -73,7 +73,7 @@ export default function HomePage() {
         <FloatingSuitcase />
 
         {/* SECTION 2: TODAY FACT CARD */}
-        <section className="max-w-3xl mx-auto text-center space-y-6">
+        <section id="daily-facts" className="max-w-3xl mx-auto text-center space-y-6 scroll-mt-24">
           <div className="space-y-2">
             <span className="text-[10px] uppercase font-bold text-sunset-1 tracking-widest">Postcard Dispatch</span>
             <h2 className="font-display font-black text-heading-xl md:text-heading-2xl leading-tight">
@@ -148,7 +148,7 @@ export default function HomePage() {
         </section>
 
         {/* SECTION 9: STATE TOURISM TIMELINE */}
-        <section className="max-w-4xl mx-auto">
+        <section id="tourism-timeline" className="max-w-4xl mx-auto scroll-mt-24">
           <StateTourismTimeline />
         </section>
 
