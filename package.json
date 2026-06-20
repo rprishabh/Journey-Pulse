@@ -28,15 +28,31 @@
     "typescript": "6.0.3"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "@tailwindcss/postcss": "^4.3.1",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/d3-geo": "^3.1.0",
+    "@types/three": "^0.184.1",
+    "canvas-confetti": "^1.9.4",
     "cheerio": "^1.2.0",
+    "d3-geo": "^3.1.1",
+    "framer-motion": "^12.40.0",
+    "gsap": "^3.15.0",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^1.18.0",
+    "maath": "^0.10.8",
     "next": "^16.2.9",
     "pg": "^8.2.1",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "react-globe.gl": "^2.38.0",
+    "react-simple-maps": "^3.0.0",
+    "splitting": "^1.1.0",
+    "three": "^0.184.0"
   },
   "optionalDependencies": {
     "opencode-windows-x64": "^1.17.7",

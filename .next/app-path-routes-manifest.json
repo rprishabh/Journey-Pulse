@@ -1,10 +1,13 @@
 {
+  "/(site)/[category]/page": "/[category]",
+  "/(site)/page": "/",
   "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
   "/api/advisories/[slug]/route": "/api/advisories/[slug]",
   "/api/advisories/alerts/route": "/api/advisories/alerts",
   "/api/advisories/route": "/api/advisories",
   "/api/cron/fetch/route": "/api/cron/fetch",
+  "/api/events/route": "/api/events",
   "/api/news/[slug]/route": "/api/news/[slug]",
   "/api/news/categorize/route": "/api/news/categorize",
   "/api/news/fetch/route": "/api/news/fetch",
@@ -13,7 +16,6 @@
   "/api/visa/[slug]/route": "/api/visa/[slug]",
   "/api/visa/compare/route": "/api/visa/compare",
   "/api/visa/route": "/api/visa",
-  "/page": "/",
   "/travel-advisories/page": "/travel-advisories",
   "/visa-hub/page": "/visa-hub"
 }

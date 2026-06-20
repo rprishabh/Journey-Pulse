@@ -4,25 +4,28 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit, JetBrains_Mono } from "next/font/google";
+import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { BreakingNewsTicker } from "@/components/BreakingNewsTicker";
+import { AlertTicker } from "@/components/AlertTicker";
+import { SkipAnimationsButton } from "@/components/SkipAnimationsButton";
 import "./globals.css";
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// FONTS (Modern typography — skills.md §2)
+// FONTS (Syne display & Plus Jakarta Sans body)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const inter = Inter({
+const syne = Syne({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["700", "800"],
+  variable: "--font-syne",
   display: "swap",
 });
 
-const outfit = Outfit({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  weight: ["400", "500", "700"],
+  variable: "--font-plus-jakarta",
   display: "swap",
 });
 
@@ -33,7 +36,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SEO METADATA (skills.md §3: Omni-Algorithm Ingestion)
+// SEO METADATA
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const metadata: Metadata = {
@@ -43,7 +46,7 @@ export const metadata: Metadata = {
     template: "%s | JourneyPulse India",
   },
   description:
-    "India's premier travel intelligence platform. Live news aggregation from 20+ sources, real-time visa requirements for Indian passport holders, travel advisories, government tourism initiatives, and daily facts about Incredible India.",
+    "India's premier travel intelligence platform. Live news aggregation, real-time visa requirements for Indian passport holders, travel advisories, government tourism initiatives, and daily facts about Incredible India.",
   keywords: [
     "India travel news",
     "visa requirements India",
@@ -89,13 +92,13 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#020617" },
+    { media: "(prefers-color-scheme: light)", color: "#fef9f3" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c1929" },
   ],
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// STRUCTURED DATA (JSON-LD for SEO/AEO — skills.md §3)
+// STRUCTURED DATA (JSON-LD for SEO/AEO)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function JsonLd() {
@@ -109,14 +112,6 @@ function JsonLd() {
       "@type": "Organization",
       name: "JourneyPulse India",
       url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-    },
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/search?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
     },
   };
 
@@ -158,22 +153,28 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
+      className={`${syne.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <head>
         <JsonLd />
         <script dangerouslySetInnerHTML={{ __html: DARK_MODE_SCRIPT }} />
       </head>
-      <body className="min-h-screen flex flex-col">
-        {/* Breaking News Ticker — pinned to top */}
-        <BreakingNewsTicker />
+      <body className="min-h-screen flex flex-col relative select-none">
+        {/* Grain overlay for paper tactile feel */}
+        <div className="grain-overlay" />
+
+        {/* Alert Ticker banner */}
+        <AlertTicker />
 
         {/* Global Header */}
         <Header />
 
         {/* Page Content */}
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 w-full relative z-10">{children}</main>
+
+        {/* Skip Animation Toggle */}
+        <SkipAnimationsButton />
 
         {/* Global Footer */}
         <Footer />

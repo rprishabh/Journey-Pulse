@@ -640,8 +640,8 @@ return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, _
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TravelPulse India — /api/news — News Articles API
-// GET: Paginated, filterable article listing
-// Production-grade Next.js App Router API route with expanded Enum validations
+// GET: Paginated, filterable article listing with self-healing fetch
+// Production-grade Next.js App Router API route
 // ─────────────────────────────────────────────────────────────────────────────
 __turbopack_context__.s([
     "GET",
@@ -664,13 +664,47 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 const dynamic = "force-dynamic";
 const revalidate = 0;
+// ═══════════════════════════════════════════════════════════════════════════════
+// SELF-HEALING FETCH — Auto-populates DB when empty (Vercel Free Plan)
+// Uses in-memory lock to prevent concurrent fetch storms
+// ═══════════════════════════════════════════════════════════════════════════════
+let isFetchInProgress = false;
+let lastAutoFetchAt = 0;
+// Minimum interval between auto-fetch triggers (1 hour in ms)
+const AUTO_FETCH_COOLDOWN_MS = 60 * 60 * 1000;
+/**
+ * Triggers an RSS fetch cycle in the background if:
+ * 1. No articles exist in the DB (first deployment scenario)
+ * 2. OR last auto-fetch was more than 1 hour ago (stale data recovery)
+ * 3. AND no fetch is currently in progress (concurrency guard)
+ *
+ * This is the "free plan" alternative to Vercel cron jobs.
+ * The fetch runs in the background — the current request still returns immediately.
+ */ async function triggerSelfHealingFetch(articleCount) {
+    const now = Date.now();
+    const timeSinceLastFetch = now - lastAutoFetchAt;
+    // Only trigger if DB is empty or cooldown has elapsed
+    const shouldFetch = (articleCount === 0 || timeSinceLastFetch > AUTO_FETCH_COOLDOWN_MS) && !isFetchInProgress;
+    if (!shouldFetch) return;
+    // Set lock immediately to prevent concurrent triggers
+    isFetchInProgress = true;
+    lastAutoFetchAt = now;
+    console.log(`[NewsFeed:SelfHeal] 🔄 Auto-triggering RSS fetch (articles=${articleCount}, lastFetch=${timeSinceLastFetch}ms ago)`);
+    // Fire-and-forget — don't block the API response
+    __turbopack_context__.A("[project]/lib/news-fetcher.ts [app-route] (ecmascript, async loader)").then(({ runFetchCycle })=>runFetchCycle()).then((result)=>{
+        console.log(`[NewsFeed:SelfHeal] ✅ Auto-fetch complete: ${result.totalNewArticles} new articles from ${result.totalSources} sources`);
+    }).catch((error)=>{
+        console.error("[NewsFeed:SelfHeal] ❌ Auto-fetch failed:", error instanceof Error ? error.message : error);
+    }).finally(()=>{
+        isFetchInProgress = false;
+    });
+}
 async function GET(request) {
     const [data, error] = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$errors$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["withErrorBoundary"])(async ()=>{
         const { searchParams } = request.nextUrl;
         // ── Parse query parameters ──────────────────────────────────────────
         const { page, pageSize, skip } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$response$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["parsePagination"])(searchParams);
         const category = searchParams.get("category");
-        // UPDATED: Added GLOBAL parsing permission to allow automatic scraper tracking
         const segment = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$response$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["parseEnumParam"])(searchParams.get("segment"), [
             "INBOUND",
             "OUTBOUND",
@@ -693,10 +727,12 @@ async function GET(request) {
         const sortBy = searchParams.get("sort") ?? "publishedAt";
         const sortOrder = searchParams.get("order") === "asc" ? "asc" : "desc";
         // ── Build dynamic WHERE clause ──────────────────────────────────────
-        const where = {}; // UNLOCKED: Fetch absolutely everything in the database!
-        // If the frontend tab is filtering for "ALL", it hits /api/news without segment query parameters
+        const where = {};
         if (segment) {
             where.segment = segment;
+        }
+        if (status) {
+            where.status = status;
         }
         if (category) {
             where.category = {
@@ -799,13 +835,33 @@ async function GET(request) {
                     isFeatured: true,
                     isPinned: true,
                     seoTitle: true,
-                    seoDescription: true
+                    seoDescription: true,
+                    // ── Relations the frontend needs ──────────────────────────────
+                    category: {
+                        select: {
+                            name: true,
+                            slug: true,
+                            iconName: true,
+                            colorHex: true
+                        }
+                    },
+                    tags: {
+                        select: {
+                            name: true,
+                            slug: true
+                        }
+                    }
                 }
             }),
             __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["prisma"].article.count({
                 where
             })
         ]);
+        // ── Self-Healing: Auto-trigger fetch if DB is empty or stale ────────
+        // Runs in the background — does NOT block this response
+        triggerSelfHealingFetch(totalCount).catch(()=>{
+        // Silently ignore — self-healing is best-effort
+        });
         return {
             articles,
             totalCount,

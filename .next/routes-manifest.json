@@ -45,6 +45,14 @@
         "nxtPslug": "nxtPslug"
       },
       "namedRegex": "^/api/visa/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/[category]",
+      "regex": "^/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPcategory": "nxtPcategory"
+      },
+      "namedRegex": "^/(?<nxtPcategory>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [
@@ -83,6 +91,12 @@
       "regex": "^/api/cron/fetch(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/cron/fetch(?:/)?$"
+    },
+    {
+      "page": "/api/events",
+      "regex": "^/api/events(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/events(?:/)?$"
     },
     {
       "page": "/api/news",

@@ -400,7 +400,7 @@ async function TravelAdvisoriesPage({ searchParams }) {
         description: "Real-time safety, security, and health bulletins indexed from official ministry portals.",
         publisher: {
             "@type": "Organization",
-            name: "TravelPulse India",
+            name: "JourneyPulse India",
             url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
         }
     };

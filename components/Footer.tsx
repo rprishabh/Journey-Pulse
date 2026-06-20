@@ -85,7 +85,6 @@ export function Footer() {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    // Simulate API registration delay (CRO/Micro-interaction)
     await new Promise((resolve) => setTimeout(resolve, 800));
     setSubscribed(true);
     setLoading(false);
@@ -126,17 +125,29 @@ export function Footer() {
   return (
     <footer
       id="site-footer"
-      className="bg-surface-950 text-surface-300 border-t border-surface-800 relative overflow-hidden"
+      className="bg-ink text-surface-300 border-t border-sunset-1/10 relative overflow-hidden"
     >
-      {/* Background glowing accents */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-900/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-900/10 rounded-full blur-[120px] pointer-events-none" />
+      {/* Sun setting into ocean SVG divider */}
+      <div className="w-full relative z-10 pointer-events-none select-none overflow-hidden">
+        <svg viewBox="0 0 1440 180" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+          <path d="M0,130 Q720,40 1440,130 L1440,180 L0,180 Z" fill="#060d16" />
+          <circle cx="720" cy="90" r="50" fill="url(#sun-glow)" />
+          <path d="M630,135 L810,135 M660,145 L780,145 M690,155 L750,155 M705,165 L735,165" stroke="#f7931e" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+          <defs>
+            <radialGradient id="sun-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#ff6b35" />
+              <stop offset="50%" stopColor="#f7931e" />
+              <stop offset="100%" stopColor="transparent" />
+            </radialGradient>
+          </defs>
+        </svg>
+      </div>
 
       {/* ── Newsletter & Trust Segment ────────────────────────────────────── */}
-      <div className="border-b border-surface-800">
+      <div className="border-b border-sunset-1/10 relative z-10">
         <div className="container-wide py-12 md:py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-6 space-y-3">
-            <h3 className="font-display font-bold text-heading-lg text-white">
+            <h3 className="font-display font-black text-heading-lg text-white">
               Stay ahead of global travel shifts
             </h3>
             <p className="text-body-sm text-surface-400 max-w-xl">
@@ -152,7 +163,7 @@ export function Footer() {
                   Subscription active. You will receive real-time alerts.
                 </div>
               ) : (
-                <div className="flex gap-2 p-1.5 bg-surface-900 border border-surface-800 rounded-2xl shadow-inner-glow focus-within:border-brand-500 transition-colors duration-200">
+                <div className="flex gap-2 p-1.5 bg-surface-900 border border-surface-800 rounded-2xl shadow-inner-glow focus-within:border-sunset-1 transition-colors duration-200">
                   <div className="flex items-center pl-3 text-surface-500 shrink-0">
                     <Mail className="w-5 h-5" />
                   </div>
@@ -175,7 +186,7 @@ export function Footer() {
                     ) : (
                       <>
                         <span>Subscribe</span>
-                        <Send className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                        <Send className="w-4 h-4" />
                       </>
                     )}
                   </button>
@@ -187,36 +198,35 @@ export function Footer() {
       </div>
 
       {/* ── Main Links Matrix ─────────────────────────────────────────────── */}
-      <div className="container-wide py-16 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-8 lg:gap-12">
+      <div className="container-wide py-16 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-12 gap-8 lg:gap-12 relative z-10">
         {/* Brand Column */}
         <div className="col-span-2 md:col-span-4 lg:col-span-4 space-y-6">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center shadow-glow-brand">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sunset-1 to-sunset-3 flex items-center justify-center shadow-glow-brand">
               <Plane className="w-5 h-5 text-white -rotate-45" />
             </div>
             <div className="flex flex-col">
-              <span className="font-display font-bold text-heading-md text-white">
-                Journey<span className="text-gradient">Pulse</span>
+              <span className="font-display font-black text-heading-md text-white">
+                Journey<span className="text-sunset-2">Pulse</span>
               </span>
-              <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-surface-400">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-surface-400">
                 India
               </span>
             </div>
           </Link>
 
           <p className="text-body-sm text-surface-400 leading-relaxed max-w-sm">
-            India&apos;s premier intelligence portal. Delivering real-time news, automated visa assessment matrices, and structured regulatory tracking for international and outbound travellers.
+            India&apos;s premier intelligence portal. Delivering real-time news, automated visa assessment matrices, and structured regulatory tracking.
           </p>
 
-          {/* Social Icons & Badges */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <a
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 bg-surface-900 border border-surface-800 rounded-xl hover:bg-brand-600 hover:text-white transition-all duration-200 flex items-center justify-center"
-                aria-label="Connect with us on LinkedIn"
+                className="p-2 bg-surface-900 border border-surface-800 rounded-xl hover:bg-sunset-1 hover:text-white transition-all duration-200 flex items-center justify-center"
+                aria-label="LinkedIn"
               >
                 <LinkedinIcon className="w-4.5 h-4.5" />
               </a>
@@ -224,8 +234,8 @@ export function Footer() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 bg-surface-900 border border-surface-800 rounded-xl hover:bg-brand-600 hover:text-white transition-all duration-200 flex items-center justify-center"
-                aria-label="Follow us on Twitter"
+                className="p-2 bg-surface-900 border border-surface-800 rounded-xl hover:bg-sunset-1 hover:text-white transition-all duration-200 flex items-center justify-center"
+                aria-label="Twitter"
               >
                 <TwitterIcon className="w-4.5 h-4.5" />
               </a>
@@ -233,8 +243,8 @@ export function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 bg-surface-900 border border-surface-800 rounded-xl hover:bg-brand-600 hover:text-white transition-all duration-200 flex items-center justify-center"
-                aria-label="Like us on Facebook"
+                className="p-2 bg-surface-900 border border-surface-800 rounded-xl hover:bg-sunset-1 hover:text-white transition-all duration-200 flex items-center justify-center"
+                aria-label="Facebook"
               >
                 <FacebookIcon className="w-4.5 h-4.5" />
               </a>
@@ -242,21 +252,20 @@ export function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 bg-surface-900 border border-surface-800 rounded-xl hover:bg-brand-600 hover:text-white transition-all duration-200 flex items-center justify-center"
-                aria-label="Follow us on Instagram"
+                className="p-2 bg-surface-900 border border-surface-800 rounded-xl hover:bg-sunset-1 hover:text-white transition-all duration-200 flex items-center justify-center"
+                aria-label="Instagram"
               >
                 <InstagramIcon className="w-4.5 h-4.5" />
               </a>
             </div>
 
-            {/* Trust Badges */}
             <div className="flex items-center gap-4 text-caption text-surface-500 pt-2 border-t border-surface-900 max-w-xs">
               <div className="flex items-center gap-1.5">
-                <Award className="w-4 h-4 text-accent-400 shrink-0" />
+                <Award className="w-4 h-4 text-sunset-2 shrink-0" />
                 <span>Tier-1 Travel Intel</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Globe2 className="w-4 h-4 text-brand-400 shrink-0" />
+                <Globe2 className="w-4 h-4 text-sunset-1 shrink-0" />
                 <span>20+ Monitored Feeds</span>
               </div>
             </div>
@@ -265,7 +274,7 @@ export function Footer() {
 
         {/* Links Column 1: Inbound */}
         <div className="col-span-1 md:col-span-1 lg:col-span-2 space-y-4">
-          <h4 className="font-display font-semibold text-body-sm uppercase tracking-wider text-white">
+          <h4 className="font-display font-extrabold text-body-sm uppercase tracking-wider text-white">
             Inbound India
           </h4>
           <ul className="space-y-2.5">
@@ -275,7 +284,7 @@ export function Footer() {
                   href={link.href}
                   className="group flex items-center text-body-sm text-surface-400 hover:text-white transition-colors"
                 >
-                  <ChevronRight className="w-3 h-3 opacity-0 -ml-3 group-hover:opacity-100 group-hover:ml-0 transition-all duration-150 text-brand-400 mr-1 shrink-0" />
+                  <ChevronRight className="w-3 h-3 opacity-0 -ml-3 group-hover:opacity-100 group-hover:ml-0 transition-all duration-150 text-sunset-1 mr-1 shrink-0" />
                   {link.label}
                 </Link>
               </li>
@@ -285,7 +294,7 @@ export function Footer() {
 
         {/* Links Column 2: Outbound */}
         <div className="col-span-1 md:col-span-1 lg:col-span-2 space-y-4">
-          <h4 className="font-display font-semibold text-body-sm uppercase tracking-wider text-white">
+          <h4 className="font-display font-extrabold text-body-sm uppercase tracking-wider text-white">
             Outbound Explorers
           </h4>
           <ul className="space-y-2.5">
@@ -295,7 +304,7 @@ export function Footer() {
                   href={link.href}
                   className="group flex items-center text-body-sm text-surface-400 hover:text-white transition-colors"
                 >
-                  <ChevronRight className="w-3 h-3 opacity-0 -ml-3 group-hover:opacity-100 group-hover:ml-0 transition-all duration-150 text-brand-400 mr-1 shrink-0" />
+                  <ChevronRight className="w-3 h-3 opacity-0 -ml-3 group-hover:opacity-100 group-hover:ml-0 transition-all duration-150 text-sunset-1 mr-1 shrink-0" />
                   {link.label}
                 </Link>
               </li>
@@ -305,7 +314,7 @@ export function Footer() {
 
         {/* Links Column 3: Enterprise */}
         <div className="col-span-1 md:col-span-1 lg:col-span-2 space-y-4">
-          <h4 className="font-display font-semibold text-body-sm uppercase tracking-wider text-white">
+          <h4 className="font-display font-extrabold text-body-sm uppercase tracking-wider text-white">
             Commercial
           </h4>
           <ul className="space-y-2.5">
@@ -315,7 +324,7 @@ export function Footer() {
                   href={link.href}
                   className="group flex items-center text-body-sm text-surface-400 hover:text-white transition-colors"
                 >
-                  <ChevronRight className="w-3 h-3 opacity-0 -ml-3 group-hover:opacity-100 group-hover:ml-0 transition-all duration-150 text-brand-400 mr-1 shrink-0" />
+                  <ChevronRight className="w-3 h-3 opacity-0 -ml-3 group-hover:opacity-100 group-hover:ml-0 transition-all duration-150 text-sunset-1 mr-1 shrink-0" />
                   {link.label}
                 </Link>
               </li>
@@ -325,7 +334,7 @@ export function Footer() {
 
         {/* Links Column 4: Legal */}
         <div className="col-span-1 md:col-span-1 lg:col-span-2 space-y-4">
-          <h4 className="font-display font-semibold text-body-sm uppercase tracking-wider text-white">
+          <h4 className="font-display font-extrabold text-body-sm uppercase tracking-wider text-white">
             Security & Legal
           </h4>
           <ul className="space-y-2.5">
@@ -335,7 +344,7 @@ export function Footer() {
                   href={link.href}
                   className="group flex items-center text-body-sm text-surface-400 hover:text-white transition-colors"
                 >
-                  <ChevronRight className="w-3 h-3 opacity-0 -ml-3 group-hover:opacity-100 group-hover:ml-0 transition-all duration-150 text-brand-400 mr-1 shrink-0" />
+                  <ChevronRight className="w-3 h-3 opacity-0 -ml-3 group-hover:opacity-100 group-hover:ml-0 transition-all duration-150 text-sunset-1 mr-1 shrink-0" />
                   {link.label}
                 </Link>
               </li>
@@ -345,7 +354,7 @@ export function Footer() {
       </div>
 
       {/* ── Sub-Footer Copyright Segment ──────────────────────────────────── */}
-      <div className="border-t border-surface-900 bg-surface-950/80 py-6">
+      <div className="border-t border-sunset-1/10 bg-[#060d16] py-6 relative z-10">
         <div className="container-wide flex flex-col md:flex-row items-center justify-between gap-4 text-caption text-surface-500">
           <div className="flex items-center gap-1">
             <span>&copy; {new Date().getFullYear()} JourneyPulse India. All rights reserved.</span>
@@ -353,7 +362,7 @@ export function Footer() {
 
           <div className="flex items-center gap-1.5">
             <span>Built with precision for global travellers. Made in India with</span>
-            <Heart className="w-3.5 h-3.5 text-red-500 fill-current animate-pulse-subtle" />
+            <Heart className="w-3.5 h-3.5 text-sunset-1 fill-current" />
           </div>
         </div>
       </div>

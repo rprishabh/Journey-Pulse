@@ -1,10 +1,13 @@
 {
+  "/(site)/[category]/page": "app/(site)/[category]/page.js",
+  "/(site)/page": "app/(site)/page.js",
   "/_global-error/page": "app/_global-error/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/api/advisories/[slug]/route": "app/api/advisories/[slug]/route.js",
   "/api/advisories/alerts/route": "app/api/advisories/alerts/route.js",
   "/api/advisories/route": "app/api/advisories/route.js",
   "/api/cron/fetch/route": "app/api/cron/fetch/route.js",
+  "/api/events/route": "app/api/events/route.js",
   "/api/news/[slug]/route": "app/api/news/[slug]/route.js",
   "/api/news/categorize/route": "app/api/news/categorize/route.js",
   "/api/news/fetch/route": "app/api/news/fetch/route.js",
@@ -13,7 +16,6 @@
   "/api/visa/[slug]/route": "app/api/visa/[slug]/route.js",
   "/api/visa/compare/route": "app/api/visa/compare/route.js",
   "/api/visa/route": "app/api/visa/route.js",
-  "/page": "app/page.js",
   "/travel-advisories/page": "app/travel-advisories/page.js",
   "/visa-hub/page": "app/visa-hub/page.js"
 }
