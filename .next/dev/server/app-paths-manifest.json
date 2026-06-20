@@ -1,8 +1,0 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/advisories/alerts/route": "app/api/advisories/alerts/route.js",
-  "/api/news/route": "app/api/news/route.js",
-  "/page": "app/page.js",
-  "/travel-advisories/page": "app/travel-advisories/page.js",
-  "/visa-hub/page": "app/visa-hub/page.js"
-}
