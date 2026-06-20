@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // TravelPulse India — /api/news/categorize — AI Categorization Trigger
 // POST: Manually triggers a DeepSeek categorization cycle
-// Protected by CRON_SECRET for production security
+// Protected by CRON_SECRET in ALL environments
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { NextRequest } from "next/server";
@@ -16,23 +16,35 @@ import { runCategorizationCycle } from "@/lib/news-categorizer";
 
 export async function POST(request: NextRequest) {
   const [result, error] = await withErrorBoundary(async () => {
-    // ── Authorization check ─────────────────────────────────────────────
-    if (process.env.NODE_ENV === "production") {
-      const cronSecret = process.env.CRON_SECRET;
-      const authHeader =
-        request.headers.get("authorization") ||
-        request.headers.get("x-cron-secret");
+    // ── Authorization check (enforced in ALL environments) ──────────────
+    const cronSecret = process.env.CRON_SECRET;
 
-      if (!cronSecret) {
-        throw new UnauthorizedError(
-          "CRON_SECRET is not configured. Set it in .env for production."
-        );
-      }
+    if (!cronSecret || cronSecret.length < 16) {
+      throw new UnauthorizedError(
+        "CRON_SECRET is not configured or too short. Set a strong secret (min 16 chars) in .env."
+      );
+    }
 
-      const token = authHeader?.replace("Bearer ", "");
-      if (token !== cronSecret) {
-        throw new UnauthorizedError("Invalid cron secret.");
-      }
+    const authHeader =
+      request.headers.get("authorization") ||
+      request.headers.get("x-cron-secret");
+
+    if (!authHeader) {
+      throw new UnauthorizedError(
+        "Missing authorization. Use 'Authorization: Bearer <token>' or 'x-cron-secret' header."
+      );
+    }
+
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7)
+      : authHeader;
+
+    // Constant-time comparison to prevent timing attacks
+    if (!timingSafeEqual(token, cronSecret)) {
+      console.warn(
+        `[Categorize] ❌ Invalid auth attempt from ${request.headers.get("x-forwarded-for") ?? "unknown"}`
+      );
+      throw new UnauthorizedError("Invalid cron secret.");
     }
 
     // ── Execute categorization cycle ────────────────────────────────────
@@ -42,4 +54,16 @@ export async function POST(request: NextRequest) {
 
   if (error) return apiError(error);
   return apiSuccess(result, undefined, 200);
+}
+
+/**
+ * Constant-time string comparison to prevent timing attacks.
+ */
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
 }

@@ -101,6 +101,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/api/cron/fetch/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/cron/fetch">> = Specific
+  const handler = {} as typeof import("../../app/api/cron/fetch/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/api/news/[slug]/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/news/[slug]">> = Specific

@@ -4,6 +4,7 @@
   "/api/advisories/[slug]/route": "/api/advisories/[slug]",
   "/api/advisories/alerts/route": "/api/advisories/alerts",
   "/api/advisories/route": "/api/advisories",
+  "/api/cron/fetch/route": "/api/cron/fetch",
   "/api/news/[slug]/route": "/api/news/[slug]",
   "/api/news/categorize/route": "/api/news/categorize",
   "/api/news/fetch/route": "/api/news/fetch",

@@ -79,6 +79,12 @@
       "namedRegex": "^/api/advisories/alerts(?:/)?$"
     },
     {
+      "page": "/api/cron/fetch",
+      "regex": "^/api/cron/fetch(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cron/fetch(?:/)?$"
+    },
+    {
       "page": "/api/news",
       "regex": "^/api/news(?:/)?$",
       "routeKeys": {},

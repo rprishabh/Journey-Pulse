@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// TravelPulse India — /api/news/sources — News Sources API
-// GET: List all registered news sources with health metadata
+// TravelPulse India — /api/news/sources — News Sources API (Public)
+// GET: List registered news sources (sanitized — no internal metadata)
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { NextRequest } from "next/server";
@@ -9,8 +9,9 @@ import { apiSuccess, apiError, parseBooleanParam } from "@/lib/api-response";
 import { withErrorBoundary } from "@/lib/errors";
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// GET /api/news/sources — List News Sources
-// Optional: ?active=true to filter only active sources
+// GET /api/news/sources — List News Sources (Public-Safe)
+// Only exposes public metadata — hides rssUrl, lastError, trustScore,
+// fetchInterval, and other operational fields that could aid attackers.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export async function GET(request: NextRequest) {
@@ -19,27 +20,20 @@ export async function GET(request: NextRequest) {
     const isActive = parseBooleanParam(searchParams.get("active"));
 
     const sources = await prisma.newsSource.findMany({
-      where: isActive !== undefined ? { isActive } : undefined,
-      orderBy: [{ trustScore: "desc" }, { name: "asc" }],
+      where: isActive !== undefined ? { isActive } : { isActive: true },
+      orderBy: [{ name: "asc" }],
       select: {
+        // ── PUBLIC fields only ────────────────────────────────────────
         id: true,
         name: true,
         slug: true,
         websiteUrl: true,
-        rssUrl: true,
-        scraperType: true,
         logoUrl: true,
         isActive: true,
-        trustScore: true,
-        fetchInterval: true,
-        lastFetchedAt: true,
-        lastErrorAt: true,
-        lastError: true,
         articleCount: true,
-        createdAt: true,
-        _count: {
-          select: { articles: true },
-        },
+        // ── HIDDEN: rssUrl, scraperType, trustScore, fetchInterval,
+        //    lastFetchedAt, lastErrorAt, lastError, createdAt
+        //    These reveal operational details and attack surface.
       },
     });
 
