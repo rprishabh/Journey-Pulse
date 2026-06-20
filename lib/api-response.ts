@@ -153,7 +153,10 @@ export function apiError(error: unknown): NextResponse<ApiErrorResponse> {
         success: false as const,
         error: {
           code: "INTERNAL_ERROR",
-          message: error.message || "An unexpected error occurred. Please try again later.",
+          message:
+            process.env.NODE_ENV === "development"
+              ? error.message
+              : "An unexpected error occurred. Please try again later.",
         },
       },
       { status: 500 }

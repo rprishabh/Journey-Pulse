@@ -143,7 +143,9 @@ export async function withErrorBoundary<T>(
       return [
         null,
         new AppError(
-          error.message || "An unexpected error occurred",
+          process.env.NODE_ENV === "development"
+            ? error.message
+            : "An unexpected error occurred",
           500,
           "INTERNAL_ERROR",
           false
