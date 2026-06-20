@@ -39,8 +39,8 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   title: {
-    default: "TravelPulse India — Live Travel News, Visa Updates & Advisories",
-    template: "%s | TravelPulse India",
+    default: "JourneyPulse India — Live Travel News, Visa Updates & Advisories",
+    template: "%s | JourneyPulse India",
   },
   description:
     "India's premier travel intelligence platform. Live news aggregation from 20+ sources, real-time visa requirements for Indian passport holders, travel advisories, government tourism initiatives, and daily facts about Incredible India.",
@@ -56,9 +56,9 @@ export const metadata: Metadata = {
     "e-visa India",
     "travel alerts",
   ],
-  authors: [{ name: "TravelPulse India" }],
-  creator: "TravelPulse India",
-  publisher: "TravelPulse India",
+  authors: [{ name: "JourneyPulse India" }],
+  creator: "JourneyPulse India",
+  publisher: "JourneyPulse India",
   robots: {
     index: true,
     follow: true,
@@ -68,16 +68,16 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     url: "/",
-    siteName: "TravelPulse India",
-    title: "TravelPulse India — Live Travel News, Visa Updates & Advisories",
+    siteName: "JourneyPulse India",
+    title: "JourneyPulse India — Live Travel News, Visa Updates & Advisories",
     description: "India's premier travel intelligence platform with live news, visa data, and travel advisories.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "TravelPulse India" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "JourneyPulse India" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "TravelPulse India — Live Travel News, Visa Updates & Advisories",
+    title: "JourneyPulse India — Live Travel News, Visa Updates & Advisories",
     description: "India's premier travel intelligence platform.",
-    creator: "@TravelPulseIN",
+    creator: "@JourneyPulseIN",
   },
   alternates: {
     canonical: "/",
@@ -102,12 +102,12 @@ function JsonLd() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "TravelPulse India",
+    name: "JourneyPulse India",
     url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
     description: "India's premier travel intelligence platform with live news aggregation, visa requirements, and travel advisories.",
     publisher: {
       "@type": "Organization",
-      name: "TravelPulse India",
+      name: "JourneyPulse India",
       url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
     },
     potentialAction: {

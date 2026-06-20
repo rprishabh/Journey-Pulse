@@ -196,7 +196,7 @@ export function Footer() {
             </div>
             <div className="flex flex-col">
               <span className="font-display font-bold text-heading-md text-white">
-                Travel<span className="text-gradient">Pulse</span>
+                Journey<span className="text-gradient">Pulse</span>
               </span>
               <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-surface-400">
                 India
@@ -348,7 +348,7 @@ export function Footer() {
       <div className="border-t border-surface-900 bg-surface-950/80 py-6">
         <div className="container-wide flex flex-col md:flex-row items-center justify-between gap-4 text-caption text-surface-500">
           <div className="flex items-center gap-1">
-            <span>&copy; {new Date().getFullYear()} TravelPulse India. All rights reserved.</span>
+            <span>&copy; {new Date().getFullYear()} JourneyPulse India. All rights reserved.</span>
           </div>
 
           <div className="flex items-center gap-1.5">

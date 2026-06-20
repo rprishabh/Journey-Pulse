@@ -160,7 +160,7 @@ export function Header() {
           <Link
             href="/"
             className="flex items-center gap-2.5 group"
-            aria-label="TravelPulse India — Home"
+            aria-label="JourneyPulse India — Home"
           >
             <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center shadow-glow-brand group-hover:shadow-glow-accent transition-shadow duration-300">
               <Plane className="w-5 h-5 text-white -rotate-45" />
@@ -168,7 +168,7 @@ export function Header() {
             </div>
             <div className="flex flex-col">
               <span className="font-display font-bold text-heading-md leading-none tracking-tight text-surface-900 dark:text-white">
-                Travel<span className="text-gradient">Pulse</span>
+                Journey<span className="text-gradient">Pulse</span>
               </span>
               <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-surface-500 dark:text-surface-400 leading-none mt-0.5">
                 India

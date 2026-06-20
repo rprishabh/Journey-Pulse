@@ -214,7 +214,7 @@ async function callDeepSeek(
  * and output schema expectations.
  */
 function buildSystemPrompt(): string {
-  return `You are TravelPulse India's AI categorization engine. Your role is to analyze travel news articles and produce structured metadata for an Indian travel news aggregation platform.
+  return `You are JourneyPulse India's AI categorization engine. Your role is to analyze travel news articles and produce structured metadata for an Indian travel news aggregation platform.
 
 ## Your Tasks
 1. **Categorize** the article into exactly ONE of these category slugs:

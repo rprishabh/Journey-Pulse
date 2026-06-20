@@ -95,7 +95,7 @@ export default async function VisaHubPage({ searchParams }: PageProps) {
     description: `Official directory of travel visa policies, costs, and processing wait-times for ${segment === "OUTBOUND" ? "Indian travellers" : "international tourists entering India"}.`,
     provider: {
       "@type": "Organization",
-      name: "TravelPulse India",
+      name: "JourneyPulse India",
       url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
     },
   };
