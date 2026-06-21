@@ -4,7 +4,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Metadata, Viewport } from "next";
-import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { AlertTicker } from "@/components/AlertTicker";
@@ -12,13 +12,13 @@ import { SkipAnimationsButton } from "@/components/SkipAnimationsButton";
 import "./globals.css";
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// FONTS (Syne display & Plus Jakarta Sans body)
+// FONTS (Outfit display & Plus Jakarta Sans body)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const syne = Syne({
+const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["700", "800"],
-  variable: "--font-syne",
+  weight: ["700", "800", "900"],
+  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -153,7 +153,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
+      className={`${outfit.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <head>

@@ -44,6 +44,192 @@ export const metadata: Metadata = {
   },
 };
 
+const MOCK_VISA_RECORDS = [
+  // MEDICAL
+  {
+    id: "mock-v-med-deu",
+    slug: "germany-medical-visa",
+    countryName: "Germany",
+    countryCode: "DEU",
+    flagEmoji: "🇩🇪",
+    segment: "OUTBOUND" as const,
+    visaType: "MEDICAL" as const,
+    isVisaRequired: true,
+    isVisaOnArrival: false,
+    isEVisaAvailable: false,
+    maxStayDays: 90,
+    processingTimeDays: 15,
+    fee: 80,
+    feeCurrency: "EUR",
+    applicationUrl: "https://india.diplo.de/",
+    documentsRequired: ["Medical certificate from Indian doctor", "Confirmation letter from German hospital", "Proof of sufficient funds"],
+    notes: "Schengen Medical Treatment Visa. Required for citizens seeking medical care in Germany. Must present confirmed medical appointment and deposit proof.",
+    sourceUrl: "https://india.diplo.de/in-en/service/visa",
+  },
+  {
+    id: "mock-v-med-gbr",
+    slug: "uk-medical-visa",
+    countryName: "United Kingdom",
+    countryCode: "GBR",
+    flagEmoji: "🇬🇧",
+    segment: "OUTBOUND" as const,
+    visaType: "MEDICAL" as const,
+    isVisaRequired: true,
+    isVisaOnArrival: false,
+    isEVisaAvailable: false,
+    maxStayDays: 180,
+    processingTimeDays: 21,
+    fee: 115,
+    feeCurrency: "GBP",
+    applicationUrl: "https://www.gov.uk/standard-visitor/medical-reason",
+    documentsRequired: ["Letter from UK registered doctor", "Estimated cost & duration of treatment", "Sponsor financial support details"],
+    notes: "Standard Visitor Visa for Medical Treatment. Allows entry for private medical treatment. Extension possible if treatment takes longer than 6 months.",
+    sourceUrl: "https://www.gov.uk/standard-visitor",
+  },
+  {
+    id: "mock-v-med-ind-bgd",
+    slug: "india-medical-visa-bangladesh",
+    countryName: "India (for Bangladesh)",
+    countryCode: "BGD",
+    flagEmoji: "🇧🇩",
+    segment: "INBOUND" as const,
+    visaType: "MEDICAL" as const,
+    isVisaRequired: true,
+    isVisaOnArrival: false,
+    isEVisaAvailable: true,
+    maxStayDays: 60,
+    processingTimeDays: 3,
+    fee: 0,
+    feeCurrency: "USD",
+    applicationUrl: "https://indianvisaonline.gov.in/evisa/",
+    documentsRequired: ["Passport valid for 6 months", "Referral letter from local hospital", "Letter of invitation from Indian hospital"],
+    notes: "Indian Medical e-Visa for Bangladeshi nationals seeking specialized treatment. Up to two attendants allowed under separate Medical Attendant visas.",
+    sourceUrl: "https://indianvisaonline.gov.in/",
+  },
+  // BUSINESS
+  {
+    id: "mock-v-bus-usa",
+    slug: "us-business-visa",
+    countryName: "United States",
+    countryCode: "USA",
+    flagEmoji: "🇺🇸",
+    segment: "OUTBOUND" as const,
+    visaType: "BUSINESS" as const,
+    isVisaRequired: true,
+    isVisaOnArrival: false,
+    isEVisaAvailable: false,
+    maxStayDays: 180,
+    processingTimeDays: 30,
+    fee: 185,
+    feeCurrency: "USD",
+    applicationUrl: "https://ceac.state.gov/genniv/",
+    documentsRequired: ["DS-160 confirmation page", "Invitation letter from US host company", "Employment verification letter"],
+    notes: "B-1 Business Visitor Visa. For consulting with business associates, attending scientific/educational conventions, or negotiating contracts.",
+    sourceUrl: "https://travel.state.gov/",
+  },
+  {
+    id: "mock-v-bus-sgp",
+    slug: "singapore-business-visa",
+    countryName: "Singapore",
+    countryCode: "SGP",
+    flagEmoji: "🇸🇬",
+    segment: "OUTBOUND" as const,
+    visaType: "BUSINESS" as const,
+    isVisaRequired: true,
+    isVisaOnArrival: false,
+    isEVisaAvailable: true,
+    maxStayDays: 30,
+    processingTimeDays: 5,
+    fee: 30,
+    feeCurrency: "SGD",
+    applicationUrl: "https://www.ica.gov.sg/",
+    documentsRequired: ["V39A Letter of Introduction", "Business profile of Singapore entity", "Onward return ticket"],
+    notes: "Business entry visa. Requires a local Singapore contact to act as a visa sponsor and submit the Letter of Introduction (LOI).",
+    sourceUrl: "https://www.ica.gov.sg/",
+  },
+  {
+    id: "mock-v-bus-ind-usa",
+    slug: "india-business-visa-usa",
+    countryName: "India (for USA)",
+    countryCode: "USA",
+    flagEmoji: "🇺🇸",
+    segment: "INBOUND" as const,
+    visaType: "BUSINESS" as const,
+    isVisaRequired: true,
+    isVisaOnArrival: false,
+    isEVisaAvailable: true,
+    maxStayDays: 180,
+    processingTimeDays: 3,
+    fee: 80,
+    feeCurrency: "USD",
+    applicationUrl: "https://indianvisaonline.gov.in/evisa/",
+    documentsRequired: ["Passport bio page", "Business card of applicant", "Letter of invitation from Indian company"],
+    notes: "e-Business Visa for US citizens. Multiple entries permitted within 1 year from the date of e-Visa grant. Maximum stay of 180 days per visit.",
+    sourceUrl: "https://indianvisaonline.gov.in/",
+  },
+  // TRANSIT
+  {
+    id: "mock-v-tran-sgp",
+    slug: "singapore-transit-visa",
+    countryName: "Singapore",
+    countryCode: "SGP",
+    flagEmoji: "🇸🇬",
+    segment: "OUTBOUND" as const,
+    visaType: "TRANSIT" as const,
+    isVisaRequired: true,
+    isVisaOnArrival: false,
+    isEVisaAvailable: false,
+    maxStayDays: 4, // 96 hours
+    processingTimeDays: 0,
+    fee: 0,
+    feeCurrency: "USD",
+    applicationUrl: "https://www.ica.gov.sg/enter-transit-depart/entering-singapore/visa-free-transit-facility",
+    documentsRequired: ["Valid passport", "Onward boarding pass", "Valid visa/residence permit for US/UK/Schengen/Australia"],
+    notes: "96-Hour Visa-Free Transit Facility (VFTF). Indian passport holders transiting to/from a third country can exit Changi airport if holding select destination visas.",
+    sourceUrl: "https://www.ica.gov.sg/",
+  },
+  {
+    id: "mock-v-tran-are",
+    slug: "uae-transit-visa",
+    countryName: "United Arab Emirates",
+    countryCode: "ARE",
+    flagEmoji: "🇦🇪",
+    segment: "OUTBOUND" as const,
+    visaType: "TRANSIT" as const,
+    isVisaRequired: true,
+    isVisaOnArrival: false,
+    isEVisaAvailable: true,
+    maxStayDays: 4, // 96 hours
+    processingTimeDays: 1,
+    fee: 30,
+    feeCurrency: "USD",
+    applicationUrl: "https://www.gdrfad.gov.ae/",
+    documentsRequired: ["Passport valid for 3 months", "Confirmed onward flight ticket", "Hotel booking if staying over 24 hours"],
+    notes: "Transit visas are sponsored by UAE airlines (Emirates, Etihad, Flydubai). 48-hour transit is free of charge; 96-hour transit incurs a fee of 30 USD.",
+    sourceUrl: "https://u.ae/en/information-and-services/visiting-and-tourism/transit-visa",
+  },
+  {
+    id: "mock-v-tran-qat",
+    slug: "qatar-transit-visa",
+    countryName: "Qatar",
+    countryCode: "QAT",
+    flagEmoji: "🇶🇦",
+    segment: "OUTBOUND" as const,
+    visaType: "TRANSIT" as const,
+    isVisaRequired: true,
+    isVisaOnArrival: false,
+    isEVisaAvailable: true,
+    maxStayDays: 4, // 96 hours
+    processingTimeDays: 1,
+    fee: 0,
+    feeCurrency: "USD",
+    applicationUrl: "https://www.qatarairways.com/",
+    documentsRequired: ["Valid passport", "Onward flight ticket via Qatar Airways", "Valid visa/entry permit of final destination"],
+    notes: "Qatar Transit Visa. Applied through Qatar Airways. Permits stay up to 96 hours. Multi-entry is not permitted; one transit per journey.",
+    sourceUrl: "https://www.visitqatar.com/",
+  }
+];
+
 export default async function VisaHubPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
@@ -56,36 +242,67 @@ export default async function VisaHubPage({ searchParams }: PageProps) {
   const pageSize = 12;
   const skip = (page - 1) * pageSize;
 
-  // ── Build database query filter ───────────────────────────────────────────
-  const where: Prisma.VisaUpdateWhereInput = {
-    isActive: true,
-    segment,
-  };
+  // ── Execute DB Query ──────────────────────────────────────────────────────
+  const dbVisaRecords = await prisma.visaUpdate.findMany({
+    where: {
+      isActive: true,
+      segment,
+    },
+    orderBy: { countryName: "asc" },
+  });
 
-  if (typeFilter) {
-    where.visaType = typeFilter;
-  }
+  // ── Merge DB & Mock records and filter in-memory ──────────────────────────
+  const dbCountryKeys = new Set(dbVisaRecords.map(r => `${r.countryCode}_${r.segment}_${r.visaType}`));
+  const combined = [...dbVisaRecords];
 
-  if (q.trim()) {
-    where.OR = [
-      { countryName: { contains: q.trim(), mode: "insensitive" } },
-      { countryCode: { contains: q.trim(), mode: "insensitive" } },
-      { notes: { contains: q.trim(), mode: "insensitive" } },
-    ];
-  }
+  MOCK_VISA_RECORDS.forEach((mock) => {
+    // Avoid duplicates
+    if (dbCountryKeys.has(`${mock.countryCode}_${mock.segment}_${mock.visaType}`)) {
+      return;
+    }
 
-  // ── Execute query and fetch count ─────────────────────────────────────────
-  const [visaRecords, totalCount] = await prisma.$transaction([
-    prisma.visaUpdate.findMany({
-      where,
-      orderBy: { countryName: "asc" },
-      skip,
-      take: pageSize,
-    }),
-    prisma.visaUpdate.count({ where }),
-  ]);
+    // Filter segment
+    if (mock.segment !== segment) return;
 
+    // Filter type
+    if (typeFilter && mock.visaType !== typeFilter) return;
+
+    // Filter query
+    if (q.trim()) {
+      const term = q.trim().toLowerCase();
+      const match =
+        mock.countryName.toLowerCase().includes(term) ||
+        mock.countryCode.toLowerCase().includes(term) ||
+        mock.notes.toLowerCase().includes(term);
+      if (!match) return;
+    }
+
+    combined.push({
+      ...mock,
+      validityDays: null,
+      multipleEntry: false,
+      requirements: [],
+      exemptions: null,
+      lastVerifiedAt: new Date(),
+      effectiveFrom: new Date(),
+      effectiveUntil: null,
+      isActive: true,
+      passportPowerRank: null,
+      henleyIndex: null,
+      arrivalCardRequired: false,
+      yellowFeverRequired: false,
+      covidProtocol: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  });
+
+  // Sort alphabetically by countryName
+  combined.sort((a, b) => a.countryName.localeCompare(b.countryName));
+
+  const totalCount = combined.length;
   const totalPages = Math.ceil(totalCount / pageSize);
+  const visaRecords = combined.slice(skip, skip + pageSize);
 
   // ── JSON-LD Structured Data for AEO/GEO Engines (skills.md §3) ────────────
   const jsonLd = {

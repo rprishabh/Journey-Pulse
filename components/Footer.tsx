@@ -93,16 +93,15 @@ export function Footer() {
 
   const footerLinks = {
     inbound: [
-      { label: "Visa Guidance", href: "/visa-hub?segment=inbound" },
-      { label: "Safety Advisories", href: "/travel-advisories?segment=inbound" },
+      { label: "Visa Guidance", href: "/visa-hub?segment=INBOUND" },
+      { label: "Safety Advisories", href: "/travel-advisories?segment=INBOUND" },
       { label: "eSIM & Connectivity", href: "/discover/connectivity" },
       { label: "Verified Itineraries", href: "/discover/itineraries" },
       { label: "Luxury Wellness", href: "/discover/wellness" },
     ],
     outbound: [
-      { label: "Passport Power Rank", href: "/visa-hub" },
+      { label: "Passport Power Rank", href: "/visa-hub/compare" },
       { label: "Visa-on-Arrival Hub", href: "/visa-hub?type=VISA_ON_ARRIVAL" },
-      { label: "Travel Insurance", href: "/services/insurance" },
       { label: "Forex & Currency Card", href: "/services/forex" },
       { label: "Veg Friendly Guides", href: "/discover/culinary" },
     ],

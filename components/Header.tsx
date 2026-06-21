@@ -235,7 +235,7 @@ export function Header() {
             <div className="mr-6 hidden xl:flex items-center w-80 h-9 overflow-hidden glass-panel rounded-full relative border border-surface-200/60 dark:border-surface-800/50">
               <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-white/80 dark:from-surface-900/80 to-transparent z-10 rounded-l-full pointer-events-none" />
 
-              <div className="flex whitespace-nowrap animate-marquee hover:[animation-play-state:paused] items-center text-[10px] font-bold tracking-wider">
+              <div className="flex whitespace-nowrap animate-ticker-scroll hover:[animation-play-state:paused] items-center text-[10px] font-bold tracking-wider">
                 <a
                   href={aqiData.url}
                   target="_blank"
