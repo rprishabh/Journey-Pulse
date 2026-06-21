@@ -72,7 +72,51 @@ export function UpcomingFestivalAlerts() {
         const res = await fetch("/api/events");
         const json = await res.json();
         if (json.success && json.data.length > 0) {
-          setEvents(json.data);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          const getLocalDateOnly = (dateInput: string) => {
+            const d = new Date(dateInput);
+            const y = d.getUTCFullYear();
+            const m = d.getUTCMonth();
+            const dateVal = d.getUTCDate();
+            return new Date(y, m, dateVal, 0, 0, 0, 0);
+          };
+
+          const calculated = json.data.map((event: any) => {
+            const localStart = getLocalDateOnly(event.startDate);
+            const localEnd = getLocalDateOnly(event.endDate);
+            
+            const isHappeningNow = today >= localStart && today <= localEnd;
+            const diffTime = localStart.getTime() - today.getTime();
+            const daysUntilStart = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+            let statusType: "happening" | "tomorrow" | "upcoming" = "upcoming";
+            let statusLabel = "";
+
+            if (isHappeningNow) {
+              statusType = "happening";
+              statusLabel = "Happening Now! 🔥";
+            } else if (daysUntilStart === 1) {
+              statusType = "tomorrow";
+              statusLabel = "Tomorrow!";
+            } else if (daysUntilStart > 1) {
+              statusType = "upcoming";
+              statusLabel = `Starts in ${daysUntilStart} days`;
+            } else {
+              statusType = "upcoming";
+              statusLabel = "Completed";
+            }
+
+            return {
+              ...event,
+              statusType,
+              statusLabel,
+              daysUntilStart: Math.max(0, daysUntilStart)
+            };
+          });
+
+          setEvents(calculated);
         }
       } catch (err) {
         console.error("Failed to fetch festival events:", err);
