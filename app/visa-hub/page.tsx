@@ -150,7 +150,7 @@ export default async function VisaHubPage({ searchParams }: PageProps) {
               return (
                 <div
                   key={record.id}
-                  className="card bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-850 p-6 flex flex-col justify-between h-[510px] hover:shadow-card-hover group transition-shadow duration-300"
+                  className="card bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-850 p-6 flex flex-col justify-between h-auto min-h-[520px] hover:shadow-card-hover group transition-shadow duration-300"
                 >
                   <div className="space-y-5">
                     {/* Header Row */}
@@ -235,7 +235,7 @@ export default async function VisaHubPage({ searchParams }: PageProps) {
 
                     {/* Notes segment */}
                     {record.notes && (
-                      <div className="text-caption text-surface-500 dark:text-surface-400 line-clamp-2 leading-relaxed bg-surface-50 dark:bg-surface-950 p-2.5 rounded-lg border border-surface-150 dark:border-surface-850">
+                      <div className="text-caption text-surface-500 dark:text-surface-400 leading-relaxed bg-surface-50 dark:bg-surface-950 p-2.5 rounded-lg border border-surface-150 dark:border-surface-850">
                         {record.notes}
                       </div>
                     )}
@@ -261,18 +261,16 @@ export default async function VisaHubPage({ searchParams }: PageProps) {
                         Ask Advisor
                       </Link>
                     )}
-                    {record.sourceUrl && (
-                      <a
-                        href={record.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-sm btn-secondary flex items-center justify-center gap-1 px-3"
-                        title="Official Government Source"
-                      >
-                        <Globe2 className="w-3.5 h-3.5 text-sunset-1" />
-                        <span>Source</span>
-                      </a>
-                    )}
+                    <a
+                      href={record.sourceUrl || `https://www.google.com/search?q=${encodeURIComponent(record.countryName + " official government visa portal immigration e-visa")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-secondary flex items-center justify-center gap-1 px-3"
+                      title={record.sourceUrl ? "Official Government Source" : "Search Official Source"}
+                    >
+                      <Globe2 className="w-3.5 h-3.5 text-sunset-1" />
+                      <span>Source</span>
+                    </a>
                   </div>
                 </div>
               );

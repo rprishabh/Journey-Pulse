@@ -44,6 +44,189 @@ export const metadata: Metadata = {
   },
 };
 
+const MOCK_ADVISORIES = [
+  // LEVEL 4 (Do Not Travel)
+  {
+    id: "mock-l4-yem",
+    title: "Civil War & Terrorism Warning: Active Hostilities",
+    countryName: "Yemen",
+    countryCode: "YEM",
+    segment: "OUTBOUND" as const,
+    advisoryLevel: "LEVEL_4_DO_NOT_TRAVEL" as const,
+    summary: "Ongoing armed conflict, civil unrest, and terrorist operations persist throughout Yemen. Travel to any part of Yemen is highly discouraged as emergency consular response capability does not exist.",
+    details: "All regional sectors in Yemen are active war zones. Coastal waters present extreme piracy hazards.",
+    affectedRegions: ["Sanaa", "Aden", "Socotra Sea"],
+    issuedBy: "Ministry of External Affairs, India",
+    issuedAt: new Date("2026-06-15"),
+    sourceUrl: "https://www.mea.gov.in/",
+    securityRisks: ["Terrorism", "Kidnapping", "Armed Conflict"],
+    healthRisks: ["Lack of medical facilities", "Cholera Outbreak"]
+  },
+  {
+    id: "mock-l4-som",
+    title: "Piracy & Extremist Threat Alert",
+    countryName: "Somalia",
+    countryCode: "SOM",
+    segment: "OUTBOUND" as const,
+    advisoryLevel: "LEVEL_4_DO_NOT_TRAVEL" as const,
+    summary: "Kidnapping, terrorist attacks by extremist organizations, and high levels of violent crime remain prevalent across Somalia. Direct travel is banned by security agencies.",
+    details: "Improvised explosive devices (IEDs) are frequently deployed in public areas. Maritime borders are subject to active hijackings.",
+    affectedRegions: ["Mogadishu", "Puntland Coastline"],
+    issuedBy: "UN Security Directorate",
+    issuedAt: new Date("2026-06-10"),
+    sourceUrl: "https://www.un.org/security",
+    securityRisks: ["Kidnapping", "Suicide Bombings", "Armed Gangs"],
+    healthRisks: ["Polio Risk", "Malnutrition"]
+  },
+  // LEVEL 3 (Reconsider Travel)
+  {
+    id: "mock-l3-jpn",
+    title: "Typhoon Seasonal Alert & Severe Weather Warning",
+    countryName: "Japan",
+    countryCode: "JPN",
+    segment: "OUTBOUND" as const,
+    advisoryLevel: "LEVEL_3_RECONSIDER_TRAVEL" as const,
+    summary: "Severe seasonal typhoon activity in the southern sea sectors of Japan is causing violent winds and extreme precipitation. Rail networks are suspended and flight plans disrupted near Okinawa.",
+    details: "High swell warnings and volcanic activity reports near Sakurajima warrant active caution.",
+    affectedRegions: ["Okinawa", "Kyushu Coast", "Kagoshima"],
+    issuedBy: "Japan Meteorological Agency",
+    issuedAt: new Date("2026-06-20"),
+    sourceUrl: "https://www.jnto.go.jp/",
+    securityRisks: ["Severe Wind Speeds", "Coastal Inundation", "Transit Interruptions"],
+    healthRisks: []
+  },
+  {
+    id: "mock-l3-isl",
+    title: "Volcanic Fissure Seismic Activity Warning",
+    countryName: "Iceland",
+    countryCode: "ISL",
+    segment: "OUTBOUND" as const,
+    advisoryLevel: "LEVEL_3_RECONSIDER_TRAVEL" as const,
+    summary: "Seismic acceleration and active lava channels are observed near the Reykjanes Peninsula. The Blue Lagoon area has been evacuated and closed to tourists.",
+    details: "Toxic sulphur dioxide gas plumes are drifting southward. Regional access roads are barricaded by civil protection teams.",
+    affectedRegions: ["Grindavik", "Reykjanes Peninsula"],
+    issuedBy: "Icelandic Meteorological Office",
+    issuedAt: new Date("2026-06-18"),
+    sourceUrl: "https://safetravel.is/",
+    securityRisks: ["Volcanic Eruptions", "Earthquakes", "Road Blockades"],
+    healthRisks: ["Sulfur Dioxide Inhalation"]
+  },
+  // LEVEL 2 (Exercise Increased Caution)
+  {
+    id: "mock-l2-ind",
+    title: "Monsoon Landslide & Torrential Flood Warning",
+    countryName: "India",
+    countryCode: "IND",
+    segment: "INBOUND" as const,
+    advisoryLevel: "LEVEL_2_EXERCISE_INCREASED" as const,
+    summary: "Extreme monsoonal rain is active in Himachal Pradesh and Uttarakhand, leading to sudden landslides, highway blockages, and flooded valleys. Urban transit in Mumbai is heavily delayed.",
+    details: "Travelers in the Western Ghats and Himalayan river tracks should postpone trekking. Maintain communications with local disaster teams.",
+    affectedRegions: ["Himachal Pradesh", "Uttarakhand", "Western Ghats", "Mumbai Coastline"],
+    issuedBy: "NDMA India",
+    issuedAt: new Date("2026-06-21"),
+    sourceUrl: "https://ndma.gov.in/",
+    securityRisks: ["Flash Floods", "Landslides", "Road Washouts"],
+    healthRisks: ["Waterborne Pathogens"]
+  },
+  {
+    id: "mock-l2-usa",
+    title: "Summer Forest Fire Warnings & Wildfire Smoke Hazards",
+    countryName: "United States",
+    countryCode: "USA",
+    segment: "OUTBOUND" as const,
+    advisoryLevel: "LEVEL_2_EXERCISE_INCREASED" as const,
+    summary: "Large forest fires are spreading across Oregon and California, bringing heavy smoke particulates and road closures inside National Parks. Open fire bans are in place.",
+    details: "Air Quality Indexes in the Northwest are registering above 180. Evacuation advisories are active near wildfire borders.",
+    affectedRegions: ["Northern California", "Oregon Wilderness"],
+    issuedBy: "US National Park Service",
+    issuedAt: new Date("2026-06-19"),
+    sourceUrl: "https://www.nps.gov/",
+    securityRisks: ["Wildfires", "Air Pollution", "Park Closures"],
+    healthRisks: ["Smoke inhalation", "Respiratory stress"]
+  },
+  {
+    id: "mock-l2-fra",
+    title: "Civil Demonstrations & Transport Strike Delays",
+    countryName: "France",
+    countryCode: "FRA",
+    segment: "OUTBOUND" as const,
+    advisoryLevel: "LEVEL_2_EXERCISE_INCREASED" as const,
+    summary: "Scheduled public transit strikes and large demonstrations in central Paris are causing severe delays on metro networks and airport corridors. Exercise caution in large gatherings.",
+    details: "Protests in major public squares can trigger sudden security cordons. Check flight status before heading to Charles de Gaulle airport.",
+    affectedRegions: ["Paris Central", "Lyon", "Marseille Transit Hubs"],
+    issuedBy: "French Ministry of the Interior",
+    issuedAt: new Date("2026-06-17"),
+    sourceUrl: "https://www.diplomatie.gouv.fr/en/",
+    securityRisks: ["Demonstrations", "Transit Blockades", "Protests"],
+    healthRisks: []
+  },
+  {
+    id: "mock-l2-lka",
+    title: "Dengue Fever Vector-Borne Advisory",
+    countryName: "Sri Lanka",
+    countryCode: "LKA",
+    segment: "OUTBOUND" as const,
+    advisoryLevel: "LEVEL_2_EXERCISE_INCREASED" as const,
+    summary: "Sri Lankan health sectors have logged a significant rise in Dengue fever cases across the Western Province. Travelers should employ vector prevention precautions.",
+    details: "Wear protective sleeves, use DEET insect repellents, and stay in screened/air-conditioned accommodations.",
+    affectedRegions: ["Colombo District", "Galle", "Kalutara"],
+    issuedBy: "Sri Lanka Ministry of Health",
+    issuedAt: new Date("2026-06-14"),
+    sourceUrl: "https://www.epid.gov.lk/",
+    securityRisks: [],
+    healthRisks: ["Dengue Fever", "High Fever Outbreak"]
+  },
+  // LEVEL 1 (Exercise Normal Precautions)
+  {
+    id: "mock-l1-sgp",
+    title: "Singapore Standard Safety Registry Guidelines",
+    countryName: "Singapore",
+    countryCode: "SGP",
+    segment: "OUTBOUND" as const,
+    advisoryLevel: "LEVEL_1_EXERCISE_NORMAL" as const,
+    summary: "Singapore remains highly secure with standard international travel precautions. Travelers must submit the electronic SG Arrival Card prior to arrival and obey public cleanliness laws.",
+    details: "Severe fines are active for littering, chewing gum importation, and jaywalking.",
+    affectedRegions: ["All Districts"],
+    issuedBy: "Singapore ICA",
+    issuedAt: new Date("2026-06-20"),
+    sourceUrl: "https://www.ica.gov.sg/",
+    securityRisks: [],
+    healthRisks: []
+  },
+  {
+    id: "mock-l1-are",
+    title: "United Arab Emirates Standard Safety Protocol",
+    countryName: "United Arab Emirates",
+    countryCode: "ARE",
+    segment: "OUTBOUND" as const,
+    advisoryLevel: "LEVEL_1_EXERCISE_NORMAL" as const,
+    summary: "Standard travel safety protocols remain in place across Dubai and Abu Dhabi. Respect local customs and cultural dress guidelines during public hours.",
+    details: "Strict penalties apply for taking photos of military buildings or posting restricted content online.",
+    affectedRegions: ["Dubai", "Abu Dhabi"],
+    issuedBy: "UAE Ministry of Interior",
+    issuedAt: new Date("2026-06-19"),
+    sourceUrl: "https://www.moi.gov.ae/",
+    securityRisks: [],
+    healthRisks: []
+  },
+  {
+    id: "mock-l1-mdv",
+    title: "Maldives Island Resort Safety Protocol",
+    countryName: "Maldives",
+    countryCode: "MDV",
+    segment: "OUTBOUND" as const,
+    advisoryLevel: "LEVEL_1_EXERCISE_NORMAL" as const,
+    summary: "Island resorts are operating normally under standard safety oversight. Water travel via speedboats and seaplanes is active. Follow local coast guard advisories.",
+    details: "Verify marine transfer schedules during weather disturbances. Resort properties provide full safety support.",
+    affectedRegions: ["Male", "Ari Atoll", "Kaafu Atoll"],
+    issuedBy: "Maldives Ministry of Tourism",
+    issuedAt: new Date("2026-06-16"),
+    sourceUrl: "https://www.tourism.gov.mv/",
+    securityRisks: [],
+    healthRisks: []
+  }
+];
+
 export default async function TravelAdvisoriesPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
@@ -56,7 +239,7 @@ export default async function TravelAdvisoriesPage({ searchParams }: PageProps) 
   const pageSize = 9;
   const skip = (page - 1) * pageSize;
 
-  // ── Build query filters ───────────────────────────────────────────────────
+  // ── Build query filters for DB ────────────────────────────────────────────
   const where: Prisma.TravelAdvisoryWhereInput = {
     isActive: true,
     segment,
@@ -76,21 +259,80 @@ export default async function TravelAdvisoriesPage({ searchParams }: PageProps) 
     ];
   }
 
-  // ── Execute query with Transaction ────────────────────────────────────────
-  const [advisories, totalCount] = await prisma.$transaction([
-    prisma.travelAdvisory.findMany({
-      where,
-      orderBy: [
-        { advisoryLevel: "desc" }, // Most severe warnings first
-        { issuedAt: "desc" },
-      ],
-      skip,
-      take: pageSize,
-    }),
-    prisma.travelAdvisory.count({ where }),
-  ]);
+  // ── Execute DB query ──────────────────────────────────────────────────────
+  const dbAdvisories = await prisma.travelAdvisory.findMany({
+    where,
+    orderBy: [
+      { advisoryLevel: "desc" },
+      { issuedAt: "desc" },
+    ],
+  });
 
+  // ── Combine & Filter in Memory to handle mock entries seamlessly ──────────
+  const dbCountryCodes = new Set(dbAdvisories.map(a => `${a.countryCode}_${a.segment}`));
+  
+  const combined = [...dbAdvisories];
+  
+  MOCK_ADVISORIES.forEach((mock) => {
+    // Prevent duplicate entries
+    if (dbCountryCodes.has(`${mock.countryCode}_${mock.segment}`)) {
+      return;
+    }
+    
+    // Filter segment
+    if (mock.segment !== segment) return;
+    
+    // Filter level
+    if (levelFilter && mock.advisoryLevel !== levelFilter) return;
+    
+    // Filter search query
+    if (q.trim()) {
+      const term = q.trim().toLowerCase();
+      const match =
+        mock.countryName.toLowerCase().includes(term) ||
+        mock.countryCode.toLowerCase().includes(term) ||
+        mock.title.toLowerCase().includes(term) ||
+        mock.summary.toLowerCase().includes(term) ||
+        mock.affectedRegions.some(r => r.toLowerCase().includes(term));
+      if (!match) return;
+    }
+    
+    combined.push({
+      ...mock,
+      slug: mock.id,
+      createdAt: mock.issuedAt,
+      updatedAt: mock.issuedAt,
+      isActive: true,
+      entryRestrictions: null,
+      exitRestrictions: null,
+      localLaws: null,
+      emergencyContacts: null,
+      effectiveFrom: mock.issuedAt,
+      effectiveUntil: null,
+      sourceUrl: mock.sourceUrl || null,
+    });
+  });
+
+  // Sort: Level descending, then issuedAt descending
+  const levelWeights: Record<AdvisoryLevel, number> = {
+    "LEVEL_4_DO_NOT_TRAVEL": 4,
+    "LEVEL_3_RECONSIDER_TRAVEL": 3,
+    "LEVEL_2_EXERCISE_INCREASED": 2,
+    "LEVEL_1_EXERCISE_NORMAL": 1,
+  };
+
+  combined.sort((a, b) => {
+    const wA = levelWeights[a.advisoryLevel] || 0;
+    const wB = levelWeights[b.advisoryLevel] || 0;
+    if (wB !== wA) {
+      return wB - wA;
+    }
+    return new Date(b.issuedAt).getTime() - new Date(a.issuedAt).getTime();
+  });
+
+  const totalCount = combined.length;
   const totalPages = Math.ceil(totalCount / pageSize);
+  const advisories = combined.slice(skip, skip + pageSize);
 
   // ── Helper to determine severity visual indicators (border/badge) ────────
   const getSeverityStyle = (level: AdvisoryLevel) => {
