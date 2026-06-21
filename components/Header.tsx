@@ -138,7 +138,7 @@ export function Header() {
         const json = await res.json();
         if (json.status === "ok" && json.data && isMounted) {
           const val = json.data.aqi;
-          const url = json.data.city?.url || "https://aqicn.org/city/delhi/";
+          const url = "https://aqicn.org/city/delhi/";
           
           let status = "MODERATE";
           if (val <= 50) status = "GOOD";

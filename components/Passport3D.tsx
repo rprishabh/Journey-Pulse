@@ -6,6 +6,8 @@ import { Float, RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
 import confetti from "canvas-confetti";
 import { CompassSpinner } from "./CompassSpinner";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 // Visa stamps loaded from API or fallback
 interface Stamp {
@@ -23,6 +25,21 @@ const FALLBACK_STAMPS: Stamp[] = [
   { country: "Seychelles", code: "SC", type: "Visa on Arrival" },
   { country: "Kenya", code: "KE", type: "e-Visa" },
 ];
+
+const getFlagEmoji = (code: string) => {
+  const flags: Record<string, string> = {
+    TH: "🇹🇭", THA: "🇹🇭",
+    MU: "🇲🇺", MUS: "🇲🇺",
+    LK: "🇱🇰", LKA: "🇱🇰",
+    NP: "🇳🇵", NPL: "🇳🇵",
+    MV: "🇲🇻", MDV: "🇲🇻",
+    SC: "🇸🇨", SYC: "🇸🇨",
+    KE: "🇰🇪", KEN: "🇰🇪",
+    MY: "🇲🇾", MYS: "🇲🇾",
+    AU: "🇦🇺", AUS: "🇦🇺",
+  };
+  return flags[code.toUpperCase()] || "🌐";
+};
 
 function PassportMesh({
   isOpen,
@@ -63,20 +80,20 @@ function PassportMesh({
     <group ref={groupRef} onClick={onClick}>
       {/* Back Cover (Stays stationary on the right side) */}
       <group position={[0.75, 0, 0]}>
-        <RoundedBox args={[1.5, 2.1, 0.05]} radius={0.03} smoothness={4}>
+        <RoundedBox args={[1.5, 2.1, 0.02]} radius={0.03} smoothness={4}>
           <meshStandardMaterial color="#0c1929" roughness={0.3} metalness={0.1} />
         </RoundedBox>
       </group>
 
-      {/* Pages inside */}
-      <group position={[0, 0, 0.02]} ref={pageRef}>
+      {/* Pages inside (Thin page layout) */}
+      <group position={[0, 0, 0.01]} ref={pageRef}>
         <group position={[0.72, 0, 0]}>
-          <RoundedBox args={[1.44, 2.02, 0.03]} radius={0.02} smoothness={3}>
+          <RoundedBox args={[1.44, 2.02, 0.008]} radius={0.01} smoothness={3}>
             <meshStandardMaterial color="#fef9f3" roughness={0.9} />
           </RoundedBox>
           {/* Inner pages text/stamps simulation */}
           {isOpen && stamps.length > 0 && (
-            <group position={[0, 0, 0.016]}>
+            <group position={[0, 0, 0.005]}>
               <StampText stamp={stamps[pageIndex % stamps.length]} />
             </group>
           )}
@@ -85,16 +102,16 @@ function PassportMesh({
 
       {/* Front Cover (Rotates left to open) */}
       <group ref={coverRef}>
-        <group position={[0.75, 0, 0.05]}>
+        <group position={[0.75, 0, 0.02]}>
           {/* Move pivot to left edge of cover */}
           <group position={[-0.75, 0, 0]}>
-            <RoundedBox position={[0.75, 0, 0]} args={[1.5, 2.1, 0.05]} radius={0.03} smoothness={4}>
+            <RoundedBox position={[0.75, 0, 0]} args={[1.5, 2.1, 0.02]} radius={0.03} smoothness={4}>
               <meshStandardMaterial color="#0c1929" roughness={0.3} metalness={0.1} />
             </RoundedBox>
             
             {/* Embossed Text */}
             {!isOpen && (
-              <group position={[0.75, 0.4, 0.03]} scale={[0.1, 0.1, 0.1]}>
+              <group position={[0.75, 0.4, 0.015]} scale={[0.1, 0.1, 0.1]}>
                 {/* Visual mockup of passport lines */}
                 <mesh>
                   <boxGeometry args={[4.5, 0.3, 0.1]} />
@@ -117,75 +134,90 @@ function PassportMesh({
   );
 }
 
-// Simple label/stamp shape
+// Dynamic label/stamp shape using high-resolution CanvasTexture
 function StampText({ stamp }: { stamp: Stamp }) {
+  const angle = React.useMemo(() => {
+    // Generate a consistent organic tilt for each country stamp based on its characters
+    let hash = 0;
+    for (let i = 0; i < stamp.country.length; i++) {
+      hash = stamp.country.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const degrees = (hash % 16) - 8; // Consistent tilt between -8 and +8 degrees
+    return (degrees * Math.PI) / 180;
+  }, [stamp]);
+
   const texture = React.useMemo(() => {
     if (typeof window === "undefined") return null;
     const canvas = document.createElement("canvas");
-    canvas.width = 512;
-    canvas.height = 384;
+    canvas.width = 1024;
+    canvas.height = 768;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
 
-    ctx.clearRect(0, 0, 512, 384);
+    ctx.clearRect(0, 0, 1024, 768);
 
+    // Dynamic harmonised ink colors matching passport power stamp theme
     const inkColors = ["#e84393", "#6c5ce7", "#ff6b35", "#00b894", "#0984e3"];
     const colorIndex = (stamp.country.length + stamp.type.length) % inkColors.length;
     const inkColor = inkColors[colorIndex];
 
     ctx.strokeStyle = inkColor;
     ctx.fillStyle = inkColor;
-    ctx.lineWidth = 10;
+    ctx.lineWidth = 14;
 
     const stampType = stamp.country.length % 3;
     if (stampType === 0) {
+      // Circular Double-Border Custom Stamp
       ctx.beginPath();
-      ctx.arc(256, 192, 130, 0, Math.PI * 2);
+      ctx.arc(512, 384, 250, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.arc(256, 192, 115, 0, Math.PI * 2);
+      ctx.arc(512, 384, 222, 0, Math.PI * 2);
       ctx.stroke();
     } else if (stampType === 1) {
+      // Octagon Custom Stamp
       ctx.beginPath();
-      const r = 135;
+      const r = 260;
       for (let i = 0; i < 8; i++) {
-        const angle = (i * Math.PI) / 4 + Math.PI / 8;
-        const x = 256 + Math.cos(angle) * r;
-        const y = 192 + Math.sin(angle) * r;
+        const a = (i * Math.PI) / 4 + Math.PI / 8;
+        const x = 512 + Math.cos(a) * r;
+        const y = 384 + Math.sin(a) * r;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.closePath();
       ctx.stroke();
     } else {
+      // Rounded Rectangle Custom Stamp
       ctx.beginPath();
-      ctx.roundRect(100, 60, 312, 264, 30);
+      ctx.roundRect(200, 120, 624, 528, 60);
       ctx.stroke();
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.roundRect(115, 75, 282, 234, 20);
+      ctx.roundRect(226, 146, 572, 476, 40);
       ctx.stroke();
     }
 
-    ctx.font = "bold 34px 'Courier New', Courier, monospace";
+    // Centered metadata styling
+    ctx.font = "bold 64px 'Courier New', Courier, monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(stamp.country.toUpperCase(), 256, 120);
+    ctx.fillText(stamp.country.toUpperCase(), 512, 240);
 
-    ctx.font = "bold 26px 'Courier New', Courier, monospace";
-    ctx.fillText(stamp.type.toUpperCase(), 256, 260);
+    ctx.font = "bold 44px 'Courier New', Courier, monospace";
+    ctx.fillText(stamp.type.toUpperCase(), 512, 520);
 
-    ctx.font = "bold 30px 'Courier New', Courier, monospace";
-    ctx.fillText("21 JUN 2026", 256, 192);
+    ctx.font = "bold 52px 'Courier New', Courier, monospace";
+    ctx.fillText("21 JUN 2026", 512, 380);
 
-    // Weathering/noise effect
+    // Weathering/noise effect (realistic vintage ink texture)
     ctx.globalCompositeOperation = "destination-out";
     ctx.fillStyle = "rgba(0,0,0,1)";
-    for (let i = 0; i < 80; i++) {
-      const rx = Math.random() * 512;
-      const ry = Math.random() * 384;
-      const rSize = 1.5 + Math.random() * 3;
+    for (let i = 0; i < 180; i++) {
+      const rx = Math.random() * 1024;
+      const ry = Math.random() * 768;
+      const rSize = 1.5 + Math.random() * 4;
       ctx.beginPath();
       ctx.arc(rx, ry, rSize, 0, Math.PI * 2);
       ctx.fill();
@@ -199,8 +231,8 @@ function StampText({ stamp }: { stamp: Stamp }) {
   if (!texture) return null;
 
   return (
-    <mesh>
-      <planeGeometry args={[1.1, 0.95]} />
+    <mesh rotation={[0, 0, angle]}>
+      <planeGeometry args={[1.15, 0.95]} />
       <meshBasicMaterial map={texture} transparent={true} />
     </mesh>
   );
@@ -311,15 +343,48 @@ export function Passport3D() {
         </Suspense>
       </div>
 
-      <div className="text-center mt-4 space-y-2">
+      <div className="text-center mt-4 space-y-4">
         <p className="text-sm font-extrabold uppercase tracking-widest text-sunset-1">
           {isOpen ? "Click Passport to turn pages" : "Click Passport to open"}
         </p>
+        
         {isOpen && currentStamp && (
-          <div className="inline-flex flex-col items-center p-3 px-6 bg-sunset-3/10 rounded-2xl border border-sunset-3/20 animate-scale-in">
-            <span className="text-[10px] uppercase font-bold text-sunset-3 tracking-widest">Active Stamp</span>
-            <span className="text-lg font-display font-black text-ink dark:text-cream">{currentStamp.country}</span>
-            <span className="text-[11px] font-semibold text-sunset-2 uppercase mt-0.5">{currentStamp.type}</span>
+          <div className="bg-sunset-4/5 border border-sunset-4/15 rounded-3xl p-5 mt-4 text-left space-y-3 shadow-lg animate-scale-in">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl" role="img" aria-label={currentStamp.country}>
+                  {getFlagEmoji(currentStamp.code)}
+                </span>
+                <div>
+                  <h4 className="font-display font-black text-sm text-ink dark:text-cream leading-tight">
+                    {currentStamp.country} Entry Stamp Info
+                  </h4>
+                  <span className="text-[10px] uppercase font-extrabold text-sunset-3 tracking-widest mt-0.5 block">
+                    Status: {currentStamp.type}
+                  </span>
+                </div>
+              </div>
+              <span className="badge bg-sunset-1/10 text-sunset-1 border border-sunset-1/20 text-[9px] font-black px-2.5 py-0.5 uppercase tracking-wider">
+                Active Stamp
+              </span>
+            </div>
+            
+            <p className="text-xs text-ink/75 dark:text-cream/75 leading-relaxed">
+              For Indian passport holders, {currentStamp.country} provides {currentStamp.type.toLowerCase()} access. Ensure your passport has at least 6 months validity from the planned entry date.
+            </p>
+            
+            <div className="flex items-center justify-between pt-3 border-t border-white/5">
+              <span className="text-[10px] font-bold text-ink/65 dark:text-cream/65">
+                📅 Stay Allowance: <span className="font-extrabold text-sunset-2">30-90 Days</span>
+              </span>
+              <Link
+                href={`/visa-hub?q=${encodeURIComponent(currentStamp.country)}`}
+                className="text-[10px] font-extrabold text-sunset-1 hover:underline inline-flex items-center gap-1 group"
+              >
+                <span>Read Full Visa Policy</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
           </div>
         )}
       </div>

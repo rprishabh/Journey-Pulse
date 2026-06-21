@@ -21,6 +21,7 @@ interface Advisory {
   securityRisks: string[];
   healthRisks: string[];
   sourceUrl?: string;
+  category?: string;
 }
 
 interface GlobePoint {
@@ -56,6 +57,17 @@ const COUNTRY_COORDS: Record<string, [number, number]> = {
   ISL: [64.963, -19.02],
 };
 
+const getCategoryEmoji = (category?: string) => {
+  const mapping: Record<string, string> = {
+    WEATHER: "🌀 WEATHER ALERT",
+    HEALTH: "🦠 HEALTH ADVISORY",
+    VOLCANO: "🌋 VOLCANIC THREAT",
+    UNREST: "🎭 CIVIL UNREST",
+    SECURITY: "⚠️ SECURITY WARNING",
+  };
+  return mapping[category || "SECURITY"] || "⚠️ WARNING";
+};
+
 const MOCK_ADVISORIES: Advisory[] = [
   {
     id: "mock-1",
@@ -67,7 +79,8 @@ const MOCK_ADVISORIES: Advisory[] = [
     issuedBy: "Ministry of External Affairs, India",
     securityRisks: ["Landslides", "Flash Floods", "Transport Delays"],
     healthRisks: ["Waterborne Diseases"],
-    sourceUrl: "https://tourism.gov.in"
+    sourceUrl: "https://tourism.gov.in",
+    category: "WEATHER"
   },
   {
     id: "mock-2",
@@ -79,7 +92,8 @@ const MOCK_ADVISORIES: Advisory[] = [
     issuedBy: "Japan Meteorological Agency",
     securityRisks: ["Severe Winds", "Flooding", "Transit Disruptions"],
     healthRisks: [],
-    sourceUrl: "https://www.jnto.go.jp/"
+    sourceUrl: "https://www.jnto.go.jp/",
+    category: "WEATHER"
   },
   {
     id: "mock-3",
@@ -91,7 +105,8 @@ const MOCK_ADVISORIES: Advisory[] = [
     issuedBy: "U.S. National Park Service",
     securityRisks: ["Wildfires", "Air Quality Warnings", "Park Closures"],
     healthRisks: ["Smoke Inhalation"],
-    sourceUrl: "https://www.nps.gov/"
+    sourceUrl: "https://www.nps.gov/",
+    category: "WEATHER"
   },
   {
     id: "mock-4",
@@ -103,7 +118,8 @@ const MOCK_ADVISORIES: Advisory[] = [
     issuedBy: "Sri Lanka Ministry of Health",
     securityRisks: [],
     healthRisks: ["Dengue Fever", "Vector-borne Outbreak"],
-    sourceUrl: "https://www.epid.gov.lk/"
+    sourceUrl: "https://www.epid.gov.lk/",
+    category: "HEALTH"
   },
   {
     id: "mock-5",
@@ -115,7 +131,8 @@ const MOCK_ADVISORIES: Advisory[] = [
     issuedBy: "French Ministry of the Interior",
     securityRisks: ["Public Strikes", "Transit Blockades", "Demonstrations"],
     healthRisks: [],
-    sourceUrl: "https://www.diplomatie.gouv.fr/en/"
+    sourceUrl: "https://www.diplomatie.gouv.fr/en/",
+    category: "UNREST"
   },
   {
     id: "mock-6",
@@ -127,7 +144,8 @@ const MOCK_ADVISORIES: Advisory[] = [
     issuedBy: "Icelandic Meteorological Office",
     securityRisks: ["Volcanic Eruption", "Seismic Activity", "Toxic Gases"],
     healthRisks: ["Sulfur Dioxide Exposure"],
-    sourceUrl: "https://safetravel.is/"
+    sourceUrl: "https://safetravel.is/",
+    category: "VOLCANO"
   }
 ];
 
@@ -185,12 +203,35 @@ export function AdvisoriesGlobe() {
               ? "#f97316" // orange
               : "#f59e0b"; // yellow
 
+            // Formatted detailed HTML tooltip for react-globe hover styling
+            const labelHtml = `
+              <div style="background: #0c1929; border: 1px solid rgba(255, 107, 53, 0.45); border-radius: 16px; padding: 12px 14px; font-family: system-ui, -apple-system, sans-serif; text-align: left; max-width: 260px; box-shadow: 0 10px 25px rgba(0,0,0,0.65); color: #fef9f3; font-weight: normal;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;">
+                  <span style="font-size: 8px; font-weight: 900; background: ${color}20; color: ${color}; border: 1px solid ${color}35; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block;">
+                    ${getCategoryEmoji(adv.category)}
+                  </span>
+                </div>
+                <div style="font-weight: 800; font-size: 13px; color: #fff; line-height: 1.2; margin-bottom: 4px;">
+                  ${adv.countryName} Alert
+                </div>
+                <div style="font-weight: 700; font-size: 11px; color: ${color}; line-height: 1.2; margin-bottom: 6px; text-transform: capitalize;">
+                  ${adv.title.toLowerCase()}
+                </div>
+                <p style="font-size: 10px; color: rgba(254, 249, 243, 0.75); margin: 0; line-height: 1.4;">
+                  ${adv.summary.substring(0, 100)}...
+                </p>
+                <div style="font-size: 9px; font-weight: bold; color: #ff6b35; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 6px;">
+                  👉 Click spike to read full threat details
+                </div>
+              </div>
+            `;
+
             return {
               lat: coords[0],
               lng: coords[1],
               size: adv.advisoryLevel === "LEVEL_4_DO_NOT_TRAVEL" ? 0.35 : 0.25,
               color,
-              label: `${adv.countryName} - Level ${adv.advisoryLevel.split("_")[1]}`,
+              label: labelHtml,
               advisory: adv,
             };
           })
@@ -204,12 +245,29 @@ export function AdvisoriesGlobe() {
           const coords = COUNTRY_COORDS[adv.countryCode];
           if (!coords) return null;
           const color = adv.advisoryLevel === "LEVEL_4_DO_NOT_TRAVEL" ? "#ef4444" : "#f97316";
+          
+          const labelHtml = `
+            <div style="background: #0c1929; border: 1px solid rgba(255, 107, 53, 0.45); border-radius: 16px; padding: 12px 14px; font-family: system-ui, -apple-system, sans-serif; text-align: left; max-width: 260px; box-shadow: 0 10px 25px rgba(0,0,0,0.65); color: #fef9f3;">
+              <div style="margin-bottom: 6px;">
+                <span style="font-size: 8px; font-weight: 900; background: ${color}20; color: ${color}; border: 1px solid ${color}35; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                  ${getCategoryEmoji(adv.category)}
+                </span>
+              </div>
+              <div style="font-weight: 800; font-size: 13px; color: #fff; line-height: 1.2; margin-bottom: 4px;">
+                ${adv.countryName} Alert
+              </div>
+              <p style="font-size: 10px; color: rgba(254, 249, 243, 0.75); margin: 0; line-height: 1.4;">
+                ${adv.summary.substring(0, 100)}...
+              </p>
+            </div>
+          `;
+
           return {
             lat: coords[0],
             lng: coords[1],
             size: 0.25,
             color,
-            label: `${adv.countryName}`,
+            label: labelHtml,
             advisory: adv
           };
         }).filter((p) => p !== null) as GlobePoint[];
@@ -269,6 +327,27 @@ export function AdvisoriesGlobe() {
 
       {/* Globe Container */}
       <div className="flex-1 w-full h-[320px] md:h-[450px] overflow-hidden rounded-2xl bg-ink relative">
+        {/* Severity Legend overlay */}
+        <div className="absolute top-4 left-4 z-20 bg-ink/90 backdrop-blur-md p-3 rounded-2xl border border-white/10 text-[9px] space-y-1.5 max-w-[155px] shadow-lg pointer-events-none text-left">
+          <div className="font-bold text-cream uppercase tracking-wider border-b border-white/5 pb-1 mb-1">Threat Key</div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-red-500" />
+            <span className="text-white/80 font-medium">Critical (Level 4)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-orange-500" />
+            <span className="text-white/80 font-medium">Severe (Level 3)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
+            <span className="text-white/80 font-medium">Moderate (Level 2)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2 bg-sunset-1 animate-pulse" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }} />
+            <span className="text-white/80 font-medium">Threat Spikes</span>
+          </div>
+        </div>
+
         <Globe
           ref={globeEl}
           width={isMobile ? 320 : 600}
@@ -303,7 +382,12 @@ export function AdvisoriesGlobe() {
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-ink/40 backdrop-blur-sm p-4 animate-fade-in">
           <div className="relative w-full max-w-lg bg-cream dark:bg-ink p-8 rounded-3xl border border-sunset-1/10 shadow-2xl space-y-6 animate-scale-in">
             <div className="flex items-start justify-between border-b border-sunset-1/15 pb-4">
-              <div>
+              <div className="space-y-1 text-left">
+                <div className="mb-1">
+                  <span className="badge bg-sunset-1/10 text-sunset-1 border border-sunset-1/20 text-[9px] font-black uppercase tracking-wider px-2 py-0.5">
+                    {getCategoryEmoji(selectedAdvisory.category)}
+                  </span>
+                </div>
                 <h4 className="text-lg font-display font-black text-ink dark:text-cream leading-snug">
                   {selectedAdvisory.countryName} Consular Alert
                 </h4>

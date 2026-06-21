@@ -12,6 +12,7 @@ import { GovInitiativesRail } from "@/components/GovInitiativesRail";
 import { AdvisoriesGlobe } from "@/components/AdvisoriesGlobe";
 import { StateTourismTimeline } from "@/components/StateTourismTimeline";
 import { UpcomingFestivalAlerts } from "@/components/UpcomingFestivalAlerts";
+import { WorldAlertOverview } from "@/components/WorldAlertOverview";
 import { JourneyCanvas } from "@/components/JourneyCanvas";
 import { MagneticButton } from "@/components/MagneticButton";
 import { Globe2, FileText, ArrowRight, ShieldAlert } from "lucide-react";
@@ -71,6 +72,9 @@ export default function HomePage() {
 
         {/* Dynamic Float Suitcase (Only desktop view) */}
         <FloatingSuitcase />
+
+        {/* SECTION 1.5: WORLD ALERTS & AQI OVERVIEW */}
+        <WorldAlertOverview />
 
         {/* SECTION 2: TODAY FACT CARD */}
         <section id="daily-facts" className="max-w-3xl mx-auto text-center space-y-6 scroll-mt-24">

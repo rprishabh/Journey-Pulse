@@ -248,7 +248,7 @@ export default async function VisaHubPage({ searchParams }: PageProps) {
                         href={record.applicationUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn btn-sm btn-primary w-full flex items-center justify-center gap-1.5"
+                        className="btn btn-sm btn-primary flex-1 flex items-center justify-center gap-1.5"
                       >
                         <span>Apply Online</span>
                         <ExternalLink className="w-4 h-4" />
@@ -256,10 +256,22 @@ export default async function VisaHubPage({ searchParams }: PageProps) {
                     ) : (
                       <Link
                         href={`/contact?subject=Visa Query ${record.countryCode}`}
-                        className="btn btn-sm btn-secondary w-full flex items-center justify-center"
+                        className="btn btn-sm btn-secondary flex-1 flex items-center justify-center"
                       >
                         Ask Advisor
                       </Link>
+                    )}
+                    {record.sourceUrl && (
+                      <a
+                        href={record.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-sm btn-secondary flex items-center justify-center gap-1 px-3"
+                        title="Official Government Source"
+                      >
+                        <Globe2 className="w-3.5 h-3.5 text-sunset-1" />
+                        <span>Source</span>
+                      </a>
                     )}
                   </div>
                 </div>
