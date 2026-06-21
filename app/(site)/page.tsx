@@ -83,6 +83,9 @@ export default function HomePage() {
           <TodayFactCard />
         </section>
 
+        {/* SECTION 2.5: UPCOMING FESTIVALS & EVENTS WORLDWIDE */}
+        <UpcomingFestivalAlerts />
+
         {/* SECTION 3: TRENDING NEWS FEED */}
         <section className="space-y-8">
           <div className="space-y-2">
@@ -141,9 +144,6 @@ export default function HomePage() {
           </div>
           <NewsGrid category="worldwide" limit={3} />
         </section>
-
-        {/* SECTION 7.5: UPCOMING FESTIVALS & EVENTS WORLDWIDE */}
-        <UpcomingFestivalAlerts />
 
         {/* SECTION 8: ADVISORIES GLOBE */}
         <section className="max-w-5xl mx-auto">

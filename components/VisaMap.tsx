@@ -307,7 +307,12 @@ export function VisaMap() {
   return (
     <div className="relative w-full glass rounded-3xl p-6 border border-sunset-1/10 shadow-lg select-none">
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-        <h3 className="font-display font-extrabold text-heading-lg text-ink dark:text-cream">Global Visa Power Map</h3>
+        <div>
+          <h3 className="font-display font-extrabold text-heading-lg text-ink dark:text-cream">Global Visa Power Map</h3>
+          <p className="text-[10px] text-ink/50 dark:text-cream/50 mt-0.5">
+            Colored countries indicate registered outbound destinations. White/grey countries represent standard visa applications or unmapped data.
+          </p>
+        </div>
         
         {/* Map Legend */}
         <div className="flex flex-wrap gap-3.5 text-xs font-semibold">

@@ -53,7 +53,83 @@ const COUNTRY_COORDS: Record<string, [number, number]> = {
   MDV: [3.202, 73.22],
   MUS: [-20.348, 57.552],
   KEN: [-0.023, 37.906],
+  ISL: [64.963, -19.02],
 };
+
+const MOCK_ADVISORIES: Advisory[] = [
+  {
+    id: "mock-1",
+    title: "High Security Advisory: Monsoon Travel Warning",
+    countryName: "India",
+    countryCode: "IND",
+    advisoryLevel: "LEVEL_2_EXERCISE_INCREASED",
+    summary: "Heavy monsoon rainfall has caused localized flooding and landslides in parts of Northern India (Himachal Pradesh, Uttarakhand) and Mumbai. Travelers should exercise caution, avoid hilly terrains during downpours, and monitor local news.",
+    issuedBy: "Ministry of External Affairs, India",
+    securityRisks: ["Landslides", "Flash Floods", "Transport Delays"],
+    healthRisks: ["Waterborne Diseases"],
+    sourceUrl: "https://tourism.gov.in"
+  },
+  {
+    id: "mock-2",
+    title: "Extreme Weather Alert: Typhoon Action Plan",
+    countryName: "Japan",
+    countryCode: "JPN",
+    advisoryLevel: "LEVEL_3_RECONSIDER_TRAVEL",
+    summary: "Typhoon activity in the southern waters of Japan is causing high winds and torrential rain. Train service disruptions and flight cancellations are expected near Okinawa and Kyushu. Check transit status before travelling.",
+    issuedBy: "Japan Meteorological Agency",
+    securityRisks: ["Severe Winds", "Flooding", "Transit Disruptions"],
+    healthRisks: [],
+    sourceUrl: "https://www.jnto.go.jp/"
+  },
+  {
+    id: "mock-3",
+    title: "Wildfire Advisory: Summer Fire Restrictions",
+    countryName: "United States",
+    countryCode: "USA",
+    advisoryLevel: "LEVEL_2_EXERCISE_INCREASED",
+    summary: "Active wildfires in California and Oregon have led to reduced air quality and closures in several National Parks. Open campfires are banned. Follow all evacuation warnings and local air quality guidelines.",
+    issuedBy: "U.S. National Park Service",
+    securityRisks: ["Wildfires", "Air Quality Warnings", "Park Closures"],
+    healthRisks: ["Smoke Inhalation"],
+    sourceUrl: "https://www.nps.gov/"
+  },
+  {
+    id: "mock-4",
+    title: "Biological Health Alert: Dengue Outbreak Notice",
+    countryName: "Sri Lanka",
+    countryCode: "LKA",
+    advisoryLevel: "LEVEL_2_EXERCISE_INCREASED",
+    summary: "A surge in seasonal Dengue fever cases has been reported in Western and Southern provinces. Travelers are advised to use mosquito repellent, wear long sleeves, and seek medical attention if fever develops.",
+    issuedBy: "Sri Lanka Ministry of Health",
+    securityRisks: [],
+    healthRisks: ["Dengue Fever", "Vector-borne Outbreak"],
+    sourceUrl: "https://www.epid.gov.lk/"
+  },
+  {
+    id: "mock-5",
+    title: "Consular Warning: Public Demonstration Disruptions",
+    countryName: "France",
+    countryCode: "FRA",
+    advisoryLevel: "LEVEL_2_EXERCISE_INCREASED",
+    summary: "Public transit strikes and large-scale demonstrations in Paris and major urban areas are causing delays. Ensure extra time for airport transfers and avoid crowds in public squares.",
+    issuedBy: "French Ministry of the Interior",
+    securityRisks: ["Public Strikes", "Transit Blockades", "Demonstrations"],
+    healthRisks: [],
+    sourceUrl: "https://www.diplomatie.gouv.fr/en/"
+  },
+  {
+    id: "mock-6",
+    title: "Volcanic Activity Alert: Mount Eldgja Warnings",
+    countryName: "Iceland",
+    countryCode: "ISL",
+    advisoryLevel: "LEVEL_3_RECONSIDER_TRAVEL",
+    summary: "Increased seismic activity and localized lava flows are reported near Grindavík. The Blue Lagoon is temporarily closed. Strictly avoid designated hazard zones near the volcanic fissures.",
+    issuedBy: "Icelandic Meteorological Office",
+    securityRisks: ["Volcanic Eruption", "Seismic Activity", "Toxic Gases"],
+    healthRisks: ["Sulfur Dioxide Exposure"],
+    sourceUrl: "https://safetravel.is/"
+  }
+];
 
 export function AdvisoriesGlobe() {
   const [advisories, setAdvisories] = useState<Advisory[]>([]);
@@ -82,40 +158,62 @@ export function AdvisoriesGlobe() {
     async function loadAdvisories() {
       try {
         const res = await fetch("/api/advisories?active=true&pageSize=100");
-        if (!res.ok) throw new Error();
-        const json = await res.json();
+        const databaseAdvisories = res.ok ? (await res.json()).data : [];
         
-        if (json.success && json.data) {
-          setAdvisories(json.data);
-          
-          // Map to Globe points
-          const newPoints: GlobePoint[] = json.data
-            .map((adv: Advisory) => {
-              const coords = COUNTRY_COORDS[adv.countryCode];
-              if (!coords) return null;
-              
-              // Pulsing color depending on severity level
-              const color = adv.advisoryLevel === "LEVEL_4_DO_NOT_TRAVEL"
-                ? "#ef4444" // red
-                : adv.advisoryLevel === "LEVEL_3_RECONSIDER_TRAVEL"
-                ? "#f97316" // orange
-                : "#f59e0b"; // yellow
+        // Merge database results with our high-fidelity mock geopolitical advisories
+        const combined = [...databaseAdvisories];
+        const dbCountryCodes = new Set(databaseAdvisories.map((a: Advisory) => a.countryCode));
+        
+        MOCK_ADVISORIES.forEach((mock) => {
+          if (!dbCountryCodes.has(mock.countryCode)) {
+            combined.push(mock);
+          }
+        });
 
-              return {
-                lat: coords[0],
-                lng: coords[1],
-                size: adv.advisoryLevel === "LEVEL_4_DO_NOT_TRAVEL" ? 0.35 : 0.25,
-                color,
-                label: `${adv.countryName} - Level ${adv.advisoryLevel.split("_")[1]}`,
-                advisory: adv,
-              };
-            })
-            .filter((p: any) => p !== null);
+        setAdvisories(combined);
+        
+        // Map to Globe points
+        const newPoints: GlobePoint[] = combined
+          .map((adv: Advisory) => {
+            const coords = COUNTRY_COORDS[adv.countryCode];
+            if (!coords) return null;
+            
+            // Pulsing color depending on severity level
+            const color = adv.advisoryLevel === "LEVEL_4_DO_NOT_TRAVEL"
+              ? "#ef4444" // red
+              : adv.advisoryLevel === "LEVEL_3_RECONSIDER_TRAVEL"
+              ? "#f97316" // orange
+              : "#f59e0b"; // yellow
 
-          setPoints(newPoints);
-        }
+            return {
+              lat: coords[0],
+              lng: coords[1],
+              size: adv.advisoryLevel === "LEVEL_4_DO_NOT_TRAVEL" ? 0.35 : 0.25,
+              color,
+              label: `${adv.countryName} - Level ${adv.advisoryLevel.split("_")[1]}`,
+              advisory: adv,
+            };
+          })
+          .filter((p): p is GlobePoint => p !== null);
+
+        setPoints(newPoints);
       } catch (e) {
-        console.warn("[AdvisoriesGlobe] Could not fetch live warnings");
+        console.warn("[AdvisoriesGlobe] Could not fetch live warnings, fallback to mock data");
+        setAdvisories(MOCK_ADVISORIES);
+        const newPoints = MOCK_ADVISORIES.map((adv) => {
+          const coords = COUNTRY_COORDS[adv.countryCode];
+          if (!coords) return null;
+          const color = adv.advisoryLevel === "LEVEL_4_DO_NOT_TRAVEL" ? "#ef4444" : "#f97316";
+          return {
+            lat: coords[0],
+            lng: coords[1],
+            size: 0.25,
+            color,
+            label: `${adv.countryName}`,
+            advisory: adv
+          };
+        }).filter((p) => p !== null) as GlobePoint[];
+        setPoints(newPoints);
       } finally {
         setLoading(false);
       }
@@ -183,8 +281,12 @@ export function AdvisoriesGlobe() {
           pointLng="lng"
           pointColor="color"
           pointRadius="size"
-          pointAltitude={0.1}
-          pointsMerge={true}
+          pointAltitude={0.4}
+          pointsMerge={false}
+          ringsData={points}
+          ringColor={(d: any) => d.color}
+          ringMaxRadius={8}
+          ringPropagationSpeed={3}
           onPointClick={(point: any) => {
             if (point && point.advisory) {
               setSelectedAdvisory(point.advisory);

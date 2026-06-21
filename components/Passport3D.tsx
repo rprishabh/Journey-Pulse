@@ -119,10 +119,89 @@ function PassportMesh({
 
 // Simple label/stamp shape
 function StampText({ stamp }: { stamp: Stamp }) {
+  const texture = React.useMemo(() => {
+    if (typeof window === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 384;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    ctx.clearRect(0, 0, 512, 384);
+
+    const inkColors = ["#e84393", "#6c5ce7", "#ff6b35", "#00b894", "#0984e3"];
+    const colorIndex = (stamp.country.length + stamp.type.length) % inkColors.length;
+    const inkColor = inkColors[colorIndex];
+
+    ctx.strokeStyle = inkColor;
+    ctx.fillStyle = inkColor;
+    ctx.lineWidth = 10;
+
+    const stampType = stamp.country.length % 3;
+    if (stampType === 0) {
+      ctx.beginPath();
+      ctx.arc(256, 192, 130, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(256, 192, 115, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (stampType === 1) {
+      ctx.beginPath();
+      const r = 135;
+      for (let i = 0; i < 8; i++) {
+        const angle = (i * Math.PI) / 4 + Math.PI / 8;
+        const x = 256 + Math.cos(angle) * r;
+        const y = 192 + Math.sin(angle) * r;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.roundRect(100, 60, 312, 264, 30);
+      ctx.stroke();
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(115, 75, 282, 234, 20);
+      ctx.stroke();
+    }
+
+    ctx.font = "bold 34px 'Courier New', Courier, monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(stamp.country.toUpperCase(), 256, 120);
+
+    ctx.font = "bold 26px 'Courier New', Courier, monospace";
+    ctx.fillText(stamp.type.toUpperCase(), 256, 260);
+
+    ctx.font = "bold 30px 'Courier New', Courier, monospace";
+    ctx.fillText("21 JUN 2026", 256, 192);
+
+    // Weathering/noise effect
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fillStyle = "rgba(0,0,0,1)";
+    for (let i = 0; i < 80; i++) {
+      const rx = Math.random() * 512;
+      const ry = Math.random() * 384;
+      const rSize = 1.5 + Math.random() * 3;
+      ctx.beginPath();
+      ctx.arc(rx, ry, rSize, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }, [stamp]);
+
+  if (!texture) return null;
+
   return (
     <mesh>
-      <planeGeometry args={[1, 0.8]} />
-      <meshBasicMaterial color="#e84393" transparent opacity={0.8} />
+      <planeGeometry args={[1.1, 0.95]} />
+      <meshBasicMaterial map={texture} transparent={true} />
     </mesh>
   );
 }
