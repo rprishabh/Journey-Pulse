@@ -25,7 +25,7 @@ export default function HomePage() {
       <JourneyCanvas />
 
       {/* Main Narrative Stream */}
-      <main className="relative z-10 container-wide space-y-32 py-12 md:py-20">
+      <main className="relative z-10 container-wide space-y-20 md:space-y-32 py-12 md:py-20">
         
         {/* SECTION 1: HERO */}
         <section className="min-h-[85vh] flex flex-col justify-center items-center text-center max-w-4xl mx-auto space-y-8 relative">

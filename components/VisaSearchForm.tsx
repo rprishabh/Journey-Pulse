@@ -75,7 +75,7 @@ export function VisaSearchForm() {
           }`}
         >
           <PlaneTakeoff className="w-4.5 h-4.5" />
-          <span>Outbound (For Indian Citizens)</span>
+          <span className="hidden sm:inline">Outbound</span><span className="sm:hidden">Out</span>
         </button>
         <button
           onClick={() => handleSegmentChange("INBOUND")}
@@ -86,7 +86,7 @@ export function VisaSearchForm() {
           }`}
         >
           <PlaneLanding className="w-4.5 h-4.5" />
-          <span>Inbound (Entering India)</span>
+          <span className="hidden sm:inline">Inbound</span><span className="sm:hidden">In</span>
         </button>
       </div>
 

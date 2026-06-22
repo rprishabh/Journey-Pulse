@@ -103,7 +103,7 @@ export function GovInitiativesRail() {
         {INITIATIVES.map((item) => (
           <div
             key={item.id}
-            className="w-[290px] md:w-[320px] shrink-0 snap-start card-modern p-6 bg-white dark:bg-ink border border-sunset-1/10 flex flex-col justify-between h-[300px] relative"
+            className="w-[75vw] sm:w-[290px] md:w-[320px] shrink-0 snap-start card-modern p-6 bg-white dark:bg-ink border border-sunset-1/10 flex flex-col justify-between min-h-[260px] relative"
           >
             <div className="space-y-4">
               <div className="flex justify-between items-center">

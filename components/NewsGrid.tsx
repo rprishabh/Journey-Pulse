@@ -111,7 +111,7 @@ export function NewsGrid({ category, limit = 6 }: NewsGridProps) {
     >
       {articles.map((article) => (
         <motion.div key={article.id} variants={itemVariants} className="w-full">
-          <TiltCard className="p-4 bg-white dark:bg-ink border-2 border-sunset-1/10 hover:border-sunset-1/30 relative flex flex-col justify-between h-[450px] shadow-md group">
+          <TiltCard className="p-4 bg-white dark:bg-ink border-2 border-sunset-1/10 hover:border-sunset-1/30 relative flex flex-col justify-between min-h-[380px] shadow-md group">
             
             {/* Polaroid image container */}
             <div className="relative h-48 w-full overflow-hidden bg-cream dark:bg-ink rounded-lg border border-sunset-1/15">

@@ -155,8 +155,10 @@ export function AdvisoriesGlobe() {
   const [selectedAdvisory, setSelectedAdvisory] = useState<Advisory | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(true);
+  const [globeWidth, setGlobeWidth] = useState(320);
   const [visible, setVisible] = useState(true);
   const globeEl = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Check reduction
@@ -169,6 +171,9 @@ export function AdvisoriesGlobe() {
 
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
+      if (containerRef.current) {
+        setGlobeWidth(containerRef.current.clientWidth);
+      }
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -326,7 +331,7 @@ export function AdvisoriesGlobe() {
       </div>
 
       {/* Globe Container */}
-      <div className="flex-1 w-full h-[320px] md:h-[450px] overflow-hidden rounded-2xl bg-ink relative">
+      <div ref={containerRef} className="flex-1 w-full h-[320px] md:h-[450px] overflow-hidden rounded-2xl bg-ink relative">
         {/* Severity Legend overlay */}
         <div className="absolute top-4 left-4 z-20 bg-ink/90 backdrop-blur-md p-3 rounded-2xl border border-white/10 text-[9px] space-y-1.5 max-w-[155px] shadow-lg pointer-events-none text-left">
           <div className="font-bold text-cream uppercase tracking-wider border-b border-white/5 pb-1 mb-1">Threat Key</div>
@@ -350,7 +355,7 @@ export function AdvisoriesGlobe() {
 
         <Globe
           ref={globeEl}
-          width={isMobile ? 320 : 600}
+          width={globeWidth}
           height={isMobile ? 320 : 450}
           backgroundColor="rgba(12, 25, 41, 1)"
           globeImageUrl="//unpkg.com/three-globe/example/img/earth-day.jpg"

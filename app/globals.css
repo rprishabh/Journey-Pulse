@@ -253,6 +253,13 @@ body {
   padding-right: 2rem;
 }
 
+@media (max-width: 374px) {
+  .container-wide {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
 @utility text-gradient-hero {
   background-clip: text;
   -webkit-background-clip: text;

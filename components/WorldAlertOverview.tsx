@@ -188,7 +188,7 @@ export function WorldAlertOverview() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.3 }}
-                className="grid grid-cols-1 lg:grid-cols-5 gap-4"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
               >
                 {WEATHER_ALERTS.map((alert, idx) => {
                   const Icon = ALERT_ICONS[alert.type];
@@ -201,7 +201,7 @@ export function WorldAlertOverview() {
                       href={alert.sourceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`p-5 rounded-2xl border flex flex-col justify-between h-[280px] transition-all duration-300 hover:scale-102 hover:shadow-lg cursor-pointer block text-left ${
+                      className={`p-5 rounded-2xl border flex flex-col justify-between min-h-[240px] transition-all duration-300 hover:scale-102 hover:shadow-lg cursor-pointer block text-left ${
                         isCritical
                           ? "bg-red-500/5 border-red-500/20 hover:border-red-500/40"
                           : isWarning

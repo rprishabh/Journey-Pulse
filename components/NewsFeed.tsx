@@ -245,7 +245,7 @@ export function NewsFeed() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: Math.min(pageSize, totalCount || 3) }).map((_, idx) => (
-            <div key={`sk-${idx}`} className="card border border-surface-200 dark:border-surface-800 overflow-hidden h-[420px] flex flex-col">
+            <div key={`sk-${idx}`} className="card border border-surface-200 dark:border-surface-800 overflow-hidden min-h-[280px] flex flex-col">
               <div className="skeleton h-48 w-full shrink-0" />
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2.5">
@@ -284,7 +284,7 @@ export function NewsFeed() {
             {articles.map((article) => (
               <article
                 key={article.id}
-                className="card-modern group flex flex-col justify-between h-[440px] relative"
+                className="card-modern group flex flex-col justify-between min-h-[380px] relative"
               >
                 <div className="relative h-44 w-full overflow-hidden shrink-0 bg-surface-100 dark:bg-surface-950/40 border-b border-surface-100 dark:border-surface-800/40">
                   {article.coverImageUrl ? (

@@ -156,7 +156,7 @@ export function FloatingSuitcase() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-y-0 right-8 w-60 h-screen pointer-events-none z-40 hidden lg:block select-none">
+    <div className="fixed inset-y-0 right-8 w-60 h-screen pointer-events-none z-40 hidden xl:block select-none">
       <Suspense fallback={null}>
         <Canvas camera={{ position: [0, 0, 3], fov: 45 }} style={{ pointerEvents: "none" }}>
           <ambientLight intensity={0.7} />

@@ -73,7 +73,7 @@ export function AdvisorySearchForm() {
           }`}
         >
           <PlaneTakeoff className="w-4.5 h-4.5" />
-          <span>Outbound (Indian Citizens)</span>
+          <span className="hidden sm:inline">Outbound</span><span className="sm:hidden">Out</span>
         </button>
         <button
           onClick={() => handleSegmentChange("INBOUND")}
@@ -84,7 +84,7 @@ export function AdvisorySearchForm() {
           }`}
         >
           <PlaneLanding className="w-4.5 h-4.5" />
-          <span>Inbound (To India)</span>
+          <span className="hidden sm:inline">Inbound</span><span className="sm:hidden">In</span>
         </button>
       </div>
 
