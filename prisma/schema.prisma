@@ -473,6 +473,7 @@ model GlobalEvent {
   endDate     DateTime @db.Date
   category    String   @default("CULTURAL")
   isRecurring Boolean  @default(true)
+  sourceUrl   String?
   isActive    Boolean  @default(true)
 
   createdAt DateTime @default(now())

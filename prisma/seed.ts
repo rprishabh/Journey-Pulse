@@ -611,30 +611,15 @@ const dailyFacts = [
   {
     dayOffset: 34,
     title: "Sundarbans: Where Tigers Swim",
-    fact: "The Sundarbans mangrove forest — shared between India and Bangladesh — is the only place on Earth where Bengal tigers are known to swim in saltwater, hunt in mangroves, and have adapted to an entirely aquatic lifestyle including eating fish and crabs.",
-    detailedFact: "The Indian Sundarbans cover 4,200 sq km and contain 102 islands, of which 54 are inhabited. The Royal Bengal Tigers here have unique behavioral adaptations: they drink saline water, swim up to 8 km between islands, and are known man-eaters (locals wear face masks on the back of their heads as a deterrent). The mangroves act as a natural shield against cyclones.",
+    fact: "The Sundarbans mangrove forest, spanning India and Bangladesh, is home to the world's largest population of Bengal tigers. These cats are expert swimmers, regularly covering 8-10 km through tidal channels.",
+    detailedFact: "Covering roughly 10,000 sq km (4,000 in India), the Sundarbans is the world's largest tidal mangrove forest designated a UNESCO World Heritage Site in 1987. The Royal Bengal Tigers here are uniquely adapted to the saline environment. An estimated 96 tigers roam the Indian Sundarbans with over 260 bird species.",
     category: "WILDLIFE",
     region: "East India",
     state: "West Bengal",
-    funEmoji: "🐅",
-    tone: "CASUAL_ENGAGING",
-  },
-  {
-    dayOffset: 35,
-    title: "Hampi's Singing Pillars",
-    fact: "The 56 musical pillars of the Vittala Temple in Hampi produce distinct musical notes when tapped — the British attempted to cut two pillars to discover the secret and found them completely solid with no hidden mechanisms.",
-    detailedFact: "The pillars are carved from different types of granite with varying compositions, densities, and thicknesses, creating different resonant frequencies. The main pillar (called SaReGaMa pillar) has smaller pillars clustered around it, each producing one of the seven notes of Indian classical music. The cut pillars, still visible with their cross-sections, proved the music is purely a function of stone engineering.",
-    category: "ARCHITECTURE",
-    region: "South India",
-    state: "Karnataka",
-    funEmoji: "🎵",
+    funEmoji: "🐯",
     tone: "CASUAL_ENGAGING",
   },
 ];
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// SEED DATA: VISA METRICS — OUTBOUND (Indian Passport Holders)
-// ═══════════════════════════════════════════════════════════════════════════════
 
 const visaUpdatesOutbound = [
   {
@@ -658,6 +643,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://www.thaievisa.go.th/",
   },
   {
     countryName: "United Arab Emirates",
@@ -680,6 +666,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: false,
     yellowFeverRequired: false,
+    sourceUrl: "https://smartservices.icp.gov.ae/",
   },
   {
     countryName: "Singapore",
@@ -702,6 +689,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://www.ica.gov.sg/",
   },
   {
     countryName: "Malaysia",
@@ -724,6 +712,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://malaysiavisa.imi.gov.my/",
   },
   {
     countryName: "Japan",
@@ -746,6 +735,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://www.evisa.mofa.go.jp/",
   },
   {
     countryName: "United Kingdom",
@@ -768,6 +758,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: false,
     yellowFeverRequired: false,
+    sourceUrl: "https://www.gov.uk/standard-visitor-visa",
   },
   {
     countryName: "United States",
@@ -790,6 +781,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: false,
     yellowFeverRequired: false,
+    sourceUrl: "https://travel.state.gov/content/travel/en/us-visas/tourism-visit.html",
   },
   {
     countryName: "Schengen Area (France)",
@@ -812,6 +804,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: false,
     yellowFeverRequired: false,
+    sourceUrl: "https://france-visas.gouv.fr/",
   },
   {
     countryName: "Australia",
@@ -834,6 +827,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://immi.homeaffairs.gov.in/visas/getting-a-visa/visa-listing/visitor-600/tourist-stream-overseas",
   },
   {
     countryName: "Maldives",
@@ -856,6 +850,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://imuga.immigration.gov.mv/",
   },
   {
     countryName: "Sri Lanka",
@@ -878,6 +873,7 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://eta.gov.lk/",
   },
   {
     countryName: "Nepal",
@@ -900,11 +896,12 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: false,
     yellowFeverRequired: false,
+    sourceUrl: "https://www.immigration.gov.np/",
   },
   {
     countryName: "Bhutan",
     countryCode: "BTN",
-    flagEmoji: "🇧🇹",
+    flagEmoji: null,
     segment: "OUTBOUND",
     visaType: "TOURIST",
     isVisaRequired: false,
@@ -922,6 +919,74 @@ const visaUpdatesOutbound = [
     isActive: true,
     arrivalCardRequired: false,
     yellowFeverRequired: false,
+    sourceUrl: "https://www.doi.gov.bt/",
+  },
+  {
+    countryName: "Indonesia",
+    countryCode: "IDN",
+    flagEmoji: "🇮🇩",
+    segment: "OUTBOUND",
+    visaType: "VISA_ON_ARRIVAL",
+    isVisaRequired: true,
+    isVisaOnArrival: true,
+    isEVisaAvailable: true,
+    processingTimeDays: 0,
+    validityDays: 30,
+    maxStayDays: 30,
+    multipleEntry: false,
+    fee: 35,
+    feeCurrency: "USD",
+    requirements: ["Valid passport with 6 months validity", "Return ticket", "Proof of accommodation"],
+    documentsRequired: ["Passport", "Return ticket", "Visa on Arrival fee payment"],
+    notes: "Visa on Arrival available at major airports (Bali, Jakarta). Extendable once for 30 days. e-VOA available at molina.imigrasi.go.id for faster processing. Payment in IDR or major currencies.",
+    isActive: true,
+    arrivalCardRequired: true,
+    yellowFeverRequired: false,
+    sourceUrl: "https://molina.imigrasi.go.id/",
+  },
+  {
+    countryName: "Turkey",
+    countryCode: "TUR",
+    flagEmoji: "🇹🇷",
+    segment: "OUTBOUND",
+    visaType: "E_VISA",
+    isVisaRequired: true,
+    isVisaOnArrival: false,
+    isEVisaAvailable: true,
+    processingTimeDays: 1,
+    validityDays: 180,
+    maxStayDays: 30,
+    multipleEntry: true,
+    fee: 50,
+    feeCurrency: "USD",
+    requirements: ["Valid passport with 6 months validity", "Return ticket", "Proof of accommodation", "Sufficient financial means"],
+    documentsRequired: ["Passport", "e-Visa from evisa.gov.tr", "Hotel booking", "Return ticket"],
+    notes: "Apply for e-Visa at evisa.gov.tr. Approved instantly in most cases. Must have a valid Schengen, US, UK, or Ireland visa/residence permit, OR apply through a Turkish embassy.",
+    isActive: true,
+    arrivalCardRequired: false,
+    yellowFeverRequired: false,
+    sourceUrl: "https://www.evisa.gov.tr/",
+  },
+  {
+    countryName: "Bhutan",
+    countryCode: "BTN",
+    flagEmoji: null,
+    segment: "OUTBOUND",
+    visaType: "TOURIST",
+    isVisaRequired: false,
+    isVisaOnArrival: false,
+    isEVisaAvailable: false,
+    processingTimeDays: 0,
+    maxStayDays: 14,
+    fee: 0,
+    feeCurrency: "USD",
+    requirements: ["Valid Indian passport or Voter ID", "Permit for areas beyond Thimphu and Paro"],
+    documentsRequired: ["Passport or Voter ID", "2 passport-size photos for permits beyond Thimphu/Paro"],
+    notes: "Indian nationals do not require a visa. The Sustainable Development Fee (SDF) of USD 100/night is waived for Indian, Bangladeshi, and Maldivian nationals. Entry via Phuentsholing or Paro airport.",
+    isActive: true,
+    arrivalCardRequired: false,
+    yellowFeverRequired: false,
+    sourceUrl: "https://www.tourism.gov.bt/",
   },
   {
     countryName: "Indonesia",
@@ -995,6 +1060,7 @@ const visaUpdatesInbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://indianvisaonline.gov.in/evisa/",
   },
   {
     countryName: "United Kingdom",
@@ -1017,6 +1083,7 @@ const visaUpdatesInbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://indianvisaonline.gov.in/evisa/",
   },
   {
     countryName: "Germany",
@@ -1039,6 +1106,7 @@ const visaUpdatesInbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://indianvisaonline.gov.in/evisa/",
   },
   {
     countryName: "France",
@@ -1061,6 +1129,7 @@ const visaUpdatesInbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://indianvisaonline.gov.in/evisa/",
   },
   {
     countryName: "Australia",
@@ -1083,6 +1152,7 @@ const visaUpdatesInbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: true,
+    sourceUrl: "https://indianvisaonline.gov.in/evisa/",
   },
   {
     countryName: "Japan",
@@ -1105,6 +1175,7 @@ const visaUpdatesInbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://indianvisaonline.gov.in/evisa/",
   },
   {
     countryName: "Canada",
@@ -1127,6 +1198,7 @@ const visaUpdatesInbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://indianvisaonline.gov.in/evisa/",
   },
   {
     countryName: "South Korea",
@@ -1149,6 +1221,7 @@ const visaUpdatesInbound = [
     isActive: true,
     arrivalCardRequired: true,
     yellowFeverRequired: false,
+    sourceUrl: "https://indianvisaonline.gov.in/evisa/",
   },
 ];
 
@@ -1263,6 +1336,7 @@ const globalEvents = [
     category: "CULTURAL",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.un.org/en/observances/yoga-day",
   },
   {
     slug: "rath-yatra-puri-2026",
@@ -1277,6 +1351,7 @@ const globalEvents = [
     category: "RELIGIOUS",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.odishatourism.gov.in/",
   },
   {
     slug: "san-juan-festival-2026",
@@ -1291,6 +1366,7 @@ const globalEvents = [
     category: "CULTURAL",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.barcelona.cat/en/",
   },
   {
     slug: "st-jean-baptiste-day-2026",
@@ -1305,6 +1381,7 @@ const globalEvents = [
     category: "CULTURAL",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.quebec.ca/en/",
   },
   {
     slug: "glastonbury-festival-2026",
@@ -1319,6 +1396,7 @@ const globalEvents = [
     category: "MUSIC",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.glastonburyfestivals.co.uk/",
   },
   {
     slug: "full-moon-party-jun-2026",
@@ -1333,6 +1411,7 @@ const globalEvents = [
     category: "MUSIC",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.tourismthailand.org/",
   },
 
   // ── Major global festivals (rest of 2026) ────────────────────────────
@@ -1349,6 +1428,7 @@ const globalEvents = [
     category: "MUSIC",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.tomorrowland.com/",
   },
   {
     slug: "la-tomatina-2026",
@@ -1363,6 +1443,7 @@ const globalEvents = [
     category: "FOOD",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://latomatina.info/",
   },
   {
     slug: "oktoberfest-2026",
@@ -1377,6 +1458,7 @@ const globalEvents = [
     category: "CULTURAL",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.oktoberfest.de/en",
   },
   {
     slug: "diwali-2026",
@@ -1391,6 +1473,7 @@ const globalEvents = [
     category: "RELIGIOUS",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.incredibleindia.org/",
   },
   {
     slug: "christmas-worldwide-2026",
@@ -1405,6 +1488,7 @@ const globalEvents = [
     category: "CULTURAL",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.austria.info/en/things-to-do/christmas-markets",
   },
   {
     slug: "rio-carnival-2026",
@@ -1419,6 +1503,7 @@ const globalEvents = [
     category: "CULTURAL",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.rio-carnival.com/",
   },
   {
     slug: "holi-2026",
@@ -1433,6 +1518,7 @@ const globalEvents = [
     category: "RELIGIOUS",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.incredibleindia.org/",
   },
   {
     slug: "ultra-music-festival-2026",
@@ -1447,6 +1533,7 @@ const globalEvents = [
     category: "MUSIC",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://ultramusicfestival.com/",
   },
   {
     slug: "pongal-2026",
@@ -1461,6 +1548,7 @@ const globalEvents = [
     category: "CULTURAL",
     isRecurring: true,
     isActive: true,
+    sourceUrl: "https://www.tamilnadutourism.fn.gov.in/",
   },
 ];
 

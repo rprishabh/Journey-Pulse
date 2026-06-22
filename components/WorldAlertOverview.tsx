@@ -15,6 +15,7 @@ import {
   ArrowRight,
   TrendingDown,
   TrendingUp,
+  ExternalLink,
 } from "lucide-react";
 
 interface AqiCity {
@@ -22,6 +23,7 @@ interface AqiCity {
   country: string;
   aqi: number;
   status: "GOOD" | "MODERATE" | "POOR" | "VERY_POOR" | "SEVERE";
+  dashboardUrl: string;
 }
 
 interface WeatherAlert {
@@ -34,22 +36,23 @@ interface WeatherAlert {
   description: string;
   actionGuideline: string;
   upcomingWeekScenario: string;
+  sourceUrl: string;
 }
 
 const BEST_AQI_CITIES: AqiCity[] = [
-  { city: "Helsinki", country: "Finland", aqi: 12, status: "GOOD" },
-  { city: "Reykjavik", country: "Iceland", aqi: 15, status: "GOOD" },
-  { city: "Zurich", country: "Switzerland", aqi: 18, status: "GOOD" },
-  { city: "Wellington", country: "New Zealand", aqi: 22, status: "GOOD" },
-  { city: "Honolulu", country: "United States", aqi: 25, status: "GOOD" },
+  { city: "Helsinki", country: "Finland", aqi: 12, status: "GOOD", dashboardUrl: "https://www.iqair.com/finland/helsinki" },
+  { city: "Reykjavik", country: "Iceland", aqi: 15, status: "GOOD", dashboardUrl: "https://www.iqair.com/iceland/gullbringusysla/reykjavik" },
+  { city: "Zurich", country: "Switzerland", aqi: 18, status: "GOOD", dashboardUrl: "https://www.iqair.com/switzerland/zurich" },
+  { city: "Wellington", country: "New Zealand", aqi: 22, status: "GOOD", dashboardUrl: "https://www.iqair.com/new-zealand/wellington" },
+  { city: "Honolulu", country: "United States", aqi: 25, status: "GOOD", dashboardUrl: "https://www.iqair.com/usa/hawaii/honolulu" },
 ];
 
 const WORST_AQI_CITIES: AqiCity[] = [
-  { city: "Lahore", country: "Pakistan", aqi: 388, status: "SEVERE" },
-  { city: "Delhi", country: "India", aqi: 342, status: "SEVERE" },
-  { city: "Dhaka", country: "Bangladesh", aqi: 295, status: "VERY_POOR" },
-  { city: "Baghdad", country: "Iraq", aqi: 210, status: "VERY_POOR" },
-  { city: "Cairo", country: "Egypt", aqi: 198, status: "POOR" },
+  { city: "Lahore", country: "Pakistan", aqi: 388, status: "SEVERE", dashboardUrl: "https://www.iqair.com/pakistan/punjab/lahore" },
+  { city: "Delhi", country: "India", aqi: 342, status: "SEVERE", dashboardUrl: "https://www.iqair.com/india/delhi" },
+  { city: "Dhaka", country: "Bangladesh", aqi: 295, status: "VERY_POOR", dashboardUrl: "https://www.iqair.com/bangladesh/dhaka" },
+  { city: "Baghdad", country: "Iraq", aqi: 210, status: "VERY_POOR", dashboardUrl: "https://www.iqair.com/iraq/baghdad" },
+  { city: "Cairo", country: "Egypt", aqi: 198, status: "POOR", dashboardUrl: "https://www.iqair.com/egypt/cairo" },
 ];
 
 const WEATHER_ALERTS: WeatherAlert[] = [
@@ -62,7 +65,8 @@ const WEATHER_ALERTS: WeatherAlert[] = [
     severity: "CRITICAL",
     description: "Monsoonal low-pressure systems are triggering extreme rainfall (>220mm expected in next 24 hours). Local transit networks are facing severe logging.",
     actionGuideline: "Postpone non-essential travel; avoid low-lying coastal paths.",
-    upcomingWeekScenario: "Monsoon activity to peak on June 23, tapering slightly by June 26."
+    upcomingWeekScenario: "Monsoon activity to peak on June 23, tapering slightly by June 26.",
+    sourceUrl: "https://mausam.imd.gov.in/"
   },
   {
     id: "w-2",
@@ -73,7 +77,8 @@ const WEATHER_ALERTS: WeatherAlert[] = [
     severity: "WARNING",
     description: "Aligning full-moon orbital positions are generating high-tide swell waves up to 3.8 meters. Minor coastal overflow expected.",
     actionGuideline: "Avoid marine sports, coastal fishing, and promenade walking.",
-    upcomingWeekScenario: "Tidal amplitudes to normalise gradually after June 24."
+    upcomingWeekScenario: "Tidal amplitudes to normalise gradually after June 24.",
+    sourceUrl: "https://www.jma.go.jp/bosai/map.html#contents=tsunami"
   },
   {
     id: "w-3",
@@ -84,7 +89,8 @@ const WEATHER_ALERTS: WeatherAlert[] = [
     severity: "CRITICAL",
     description: "Deep depression has intensified into a severe cyclonic storm with wind velocities reaching 110 km/h. Sea conditions are extremely hazardous.",
     actionGuideline: "Evacuate beachfront resorts; flight delays highly expected at CCU & DAC.",
-    upcomingWeekScenario: "Landfall expected near Sundarbans overnight. Severe winds continuing through June 23."
+    upcomingWeekScenario: "Landfall expected near Sundarbans overnight. Severe winds continuing through June 23.",
+    sourceUrl: "https://mausam.imd.gov.in/"
   },
   {
     id: "w-4",
@@ -95,7 +101,8 @@ const WEATHER_ALERTS: WeatherAlert[] = [
     severity: "ADVISORY",
     description: "High-speed Shamal desert winds are generating dust suspension, reducing road visibility to less than 800 meters.",
     actionGuideline: "Exercise extreme driving caution; use fog lights; wear masks outdoors.",
-    upcomingWeekScenario: "Winds expected to subside by tomorrow evening as pressure stabilizes."
+    upcomingWeekScenario: "Winds expected to subside by tomorrow evening as pressure stabilizes.",
+    sourceUrl: "https://ncm.ae/"
   },
   {
     id: "w-5",
@@ -106,7 +113,8 @@ const WEATHER_ALERTS: WeatherAlert[] = [
     severity: "WARNING",
     description: "Ambient dry temperatures rising to a peak of 48.2°C during noon hours. High ultraviolet index risk.",
     actionGuideline: "Stay hydrated; avoid outdoor activities between 11:00 AM and 4:00 PM.",
-    upcomingWeekScenario: "Dry heat ridge persisting across the Arabian peninsula for the next 7 days."
+    upcomingWeekScenario: "Dry heat ridge persisting across the Arabian peninsula for the next 7 days.",
+    sourceUrl: "https://ncm.gov.sa/"
   }
 ];
 
@@ -188,9 +196,12 @@ export function WorldAlertOverview() {
                   const isWarning = alert.severity === "WARNING";
 
                   return (
-                    <div
+                    <a
                       key={alert.id}
-                      className={`p-5 rounded-2xl border flex flex-col justify-between h-[280px] transition-all duration-300 hover:scale-102 hover:shadow-lg ${
+                      href={alert.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`p-5 rounded-2xl border flex flex-col justify-between h-[280px] transition-all duration-300 hover:scale-102 hover:shadow-lg cursor-pointer block text-left ${
                         isCritical
                           ? "bg-red-500/5 border-red-500/20 hover:border-red-500/40"
                           : isWarning
@@ -211,7 +222,7 @@ export function WorldAlertOverview() {
                             <Icon className="w-5 h-5" />
                           </div>
                           
-                          <span className={`badge text-[8px] font-black uppercase tracking-wider px-2 py-0.5 border ${
+                          <span className={`badge text-[8px] font-black uppercase tracking-wider px-2 py-0.5 border flex items-center gap-1 ${
                             isCritical
                               ? "bg-red-500/20 text-red-300 border-red-500/35"
                               : isWarning
@@ -219,6 +230,7 @@ export function WorldAlertOverview() {
                               : "bg-white/10 text-white/80 border-white/15"
                           }`}>
                             {alert.severity}
+                            <ExternalLink className="w-2.5 h-2.5 opacity-75" />
                           </span>
                         </div>
 
@@ -248,7 +260,7 @@ export function WorldAlertOverview() {
                           Outlook: {alert.upcomingWeekScenario}
                         </span>
                       </div>
-                    </div>
+                    </a>
                   );
                 })}
               </motion.div>
@@ -277,9 +289,12 @@ export function WorldAlertOverview() {
 
                   <div className="space-y-2">
                     {WORST_AQI_CITIES.map((c, i) => (
-                      <div
+                      <a
                         key={c.city}
-                        className="flex items-center justify-between p-3 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 hover:border-red-500/20 rounded-xl transition-all duration-300"
+                        href={c.dashboardUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 hover:border-red-500/20 rounded-xl transition-all duration-300 cursor-pointer block"
                       >
                         <div className="flex items-center gap-3">
                           <span className="font-display font-black text-xs text-red-400">
@@ -295,14 +310,15 @@ export function WorldAlertOverview() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2.5">
-                          <span className="badge bg-red-500/20 text-red-300 border border-red-500/30 text-[9px] px-2 py-0.5">
+                          <span className="badge bg-red-500/20 text-red-300 border border-red-500/30 text-[9px] px-2 py-0.5 flex items-center gap-1">
                             {c.status.replace("_", " ")}
+                            <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                           </span>
                           <span className="font-display font-black text-sm text-red-500">
                             {c.aqi}
                           </span>
                         </div>
-                      </div>
+                      </a>
                     ))}
                   </div>
                 </div>
@@ -323,9 +339,12 @@ export function WorldAlertOverview() {
 
                   <div className="space-y-2">
                     {BEST_AQI_CITIES.map((c, i) => (
-                      <div
+                      <a
                         key={c.city}
-                        className="flex items-center justify-between p-3 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/10 hover:border-emerald-500/20 rounded-xl transition-all duration-300"
+                        href={c.dashboardUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/10 hover:border-emerald-500/20 rounded-xl transition-all duration-300 cursor-pointer block"
                       >
                         <div className="flex items-center gap-3">
                           <span className="font-display font-black text-xs text-emerald-400">
@@ -341,14 +360,15 @@ export function WorldAlertOverview() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2.5">
-                          <span className="badge bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] px-2 py-0.5">
+                          <span className="badge bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] px-2 py-0.5 flex items-center gap-1">
                             {c.status}
+                            <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                           </span>
                           <span className="font-display font-black text-sm text-emerald-400">
                             {c.aqi}
                           </span>
                         </div>
-                      </div>
+                      </a>
                     ))}
                   </div>
                 </div>

@@ -11,6 +11,7 @@ interface Initiative {
   ministry: string;
   budget: string;
   icon: React.ReactNode;
+  govUrl: string;
 }
 
 const INITIATIVES: Initiative[] = [
@@ -21,6 +22,7 @@ const INITIATIVES: Initiative[] = [
     ministry: "Ministry of Tourism",
     budget: "₹1,400 Crores",
     icon: <Compass className="w-8 h-8 text-sunset-1" />,
+    govUrl: "https://swadeshdarshan.gov.in/",
   },
   {
     id: "init-2",
@@ -29,6 +31,7 @@ const INITIATIVES: Initiative[] = [
     ministry: "Ministry of Tourism",
     budget: "₹800 Crores",
     icon: <Landmark className="w-8 h-8 text-sunset-2" />,
+    govUrl: "https://tourism.gov.in/schemes-and-programmes",
   },
   {
     id: "init-3",
@@ -37,6 +40,7 @@ const INITIATIVES: Initiative[] = [
     ministry: "Ministry of External Affairs",
     budget: "₹250 Crores",
     icon: <Sparkles className="w-8 h-8 text-sunset-3" />,
+    govUrl: "https://www.incredibleindia.org/content/incredible-india-v2/en.html",
   },
   {
     id: "init-4",
@@ -45,6 +49,7 @@ const INITIATIVES: Initiative[] = [
     ministry: "Ministry of Home Affairs",
     budget: "₹4,800 Crores",
     icon: <Flag className="w-8 h-8 text-sunset-4" />,
+    govUrl: "https://ruraldiksha.nic.in/",
   },
 ];
 
@@ -124,13 +129,19 @@ export function GovInitiativesRail() {
               </p>
             </div>
 
-            {/* Magnetic Button CTA */}
+            {/* External CTA Link */}
             <div className="pt-4 border-t border-sunset-1/10 mt-4">
               <MagneticButton radius={60}>
-                <div className="inline-flex items-center gap-1.5 text-xs font-black text-sunset-1 uppercase tracking-widest hover:text-sunset-2 transition-colors">
+                <a
+                  href={item.govUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-black text-sunset-1 uppercase tracking-widest hover:text-sunset-2 transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <span>Explore Program</span>
                   <ArrowRight className="w-3.5 h-3.5" />
-                </div>
+                </a>
               </MagneticButton>
             </div>
           </div>

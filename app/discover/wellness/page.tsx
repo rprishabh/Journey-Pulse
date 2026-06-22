@@ -28,6 +28,7 @@ interface Retreat {
   therapies: string[];
   duration: string;
   priceLevel: "Luxury" | "Ultra-Luxury" | "Elite";
+  websiteUrl: string;
 }
 
 const PREMIUM_RETREATS: Retreat[] = [
@@ -42,6 +43,7 @@ const PREMIUM_RETREATS: Retreat[] = [
     therapies: ["Ayurvedic Detox", "Hatha Yoga", "Vedanta Philosophy", "Stress Management"],
     duration: "7 - 21 Days",
     priceLevel: "Ultra-Luxury",
+    websiteUrl: "https://www.anandaspa.com/",
   },
   {
     id: "r-2",
@@ -54,6 +56,7 @@ const PREMIUM_RETREATS: Retreat[] = [
     therapies: ["Panchakarma Detox", "Rasayana Rejuvenation", "Spine & Neck Care", "Traditional Yoga"],
     duration: "14 - 28 Days",
     priceLevel: "Luxury",
+    websiteUrl: "https://www.somatheeram.org/",
   },
   {
     id: "r-3",
@@ -66,6 +69,7 @@ const PREMIUM_RETREATS: Retreat[] = [
     therapies: ["Sowa Rigpa (Tibetan)", "Acupuncture", "Sattvic Nutrition", "Music Therapy"],
     duration: "7 - 30 Days",
     priceLevel: "Elite",
+    websiteUrl: "https://www.vfrretreats.com/",
   },
   {
     id: "r-4",
@@ -78,6 +82,7 @@ const PREMIUM_RETREATS: Retreat[] = [
     therapies: ["Anti-Aging Cure", "Pranic Healing", "Immune Strengthening", "Bespoke Yoga"],
     duration: "10 - 21 Days",
     priceLevel: "Ultra-Luxury",
+    websiteUrl: "https://www.carnoustieresorts.com/",
   }
 ];
 
@@ -290,13 +295,15 @@ export default function LuxuryWellnessPage() {
                       <span className="text-[10px] text-surface-400">
                         Min Duration: <strong className="text-white">{retreat.duration}</strong>
                       </span>
-                      <Link
-                        href={`/contact?subject=Book Retreat ${retreat.name}`}
+                      <a
+                        href={retreat.websiteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-xs font-black uppercase text-sunset-1 hover:text-sunset-2 flex items-center gap-1 group/btn"
                       >
                         <span>Inquire Booking</span>
                         <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform" />
-                      </Link>
+                      </a>
                     </div>
                   </div>
                 </div>
