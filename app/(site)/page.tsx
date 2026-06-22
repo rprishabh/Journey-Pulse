@@ -15,6 +15,7 @@ import { UpcomingFestivalAlerts } from "@/components/UpcomingFestivalAlerts";
 import { WorldAlertOverview } from "@/components/WorldAlertOverview";
 import { JourneyCanvas } from "@/components/JourneyCanvas";
 import { MagneticButton } from "@/components/MagneticButton";
+import { LiveTransitTracker } from "@/components/LiveTransitTracker";
 import { Globe2, FileText, ArrowRight, ShieldAlert } from "lucide-react";
 
 export default function HomePage() {
@@ -75,6 +76,9 @@ export default function HomePage() {
 
         {/* SECTION 1.5: WORLD ALERTS & AQI OVERVIEW */}
         <WorldAlertOverview />
+
+        {/* SECTION 1.75: LIVE TRANSIT TRACKER */}
+        <LiveTransitTracker />
 
         {/* SECTION 2: TODAY FACT CARD */}
         <section id="daily-facts" className="max-w-3xl mx-auto text-center space-y-6 scroll-mt-24">
