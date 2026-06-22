@@ -91,8 +91,8 @@ export function LiveTransitTracker() {
       return;
     }
 
-    alert("You are being redirected to the official Indian Railways Passenger Enquiry portal (indianrail.gov.in) to check your PNR status.");
-    window.open("https://www.indianrail.gov.in/enquiry/PNR/PNR_Enq.html", "_blank", "noopener,noreferrer");
+    alert("You are being redirected to the official Indian Railways NTES portal (enquiry.indianrail.gov.in) to check your PNR status.");
+    window.open("https://enquiry.indianrail.gov.in/ntes/", "_blank", "noopener,noreferrer");
   }, [pnrInput]);
 
   const handleTrainSubmit = useCallback((e: React.FormEvent) => {
@@ -105,8 +105,8 @@ export function LiveTransitTracker() {
       return;
     }
 
-    alert("You are being redirected to the official Indian Railways Passenger Enquiry portal (indianrail.gov.in) to check train running status. Please enter your train number on the page.");
-    window.open("https://www.indianrail.gov.in/enquiry/TrainStatus/TrainStatus.html", "_blank", "noopener,noreferrer");
+    alert("You are being redirected to the official Indian Railways NTES portal (enquiry.indianrail.gov.in) to check train running status. Use the 'Spot Your Train' section on the page.");
+    window.open("https://enquiry.indianrail.gov.in/ntes/", "_blank", "noopener,noreferrer");
   }, [trainInput]);
 
   const handleFlightSearch = useCallback(async (e: React.FormEvent) => {
@@ -255,7 +255,7 @@ export function LiveTransitTracker() {
                     </button>
                     <p className="text-[9px] text-ink/50 dark:text-cream/50 text-center flex items-center justify-center gap-1">
                       <ExternalLink className="w-2.5 h-2.5" />
-                      Redirects to indianrail.gov.in
+                      Redirects to NTES portal
                     </p>
                   </form>
                 </div>
@@ -306,7 +306,7 @@ export function LiveTransitTracker() {
                     </button>
                     <p className="text-[9px] text-ink/50 dark:text-cream/50 text-center flex items-center justify-center gap-1">
                       <ExternalLink className="w-2.5 h-2.5" />
-                      Redirects to indianrail.gov.in
+                      Redirects to NTES portal
                     </p>
                   </form>
                 </div>
