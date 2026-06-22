@@ -92,7 +92,7 @@ export function LiveTransitTracker() {
     }
 
     alert("You are being redirected to the official Indian Railways Passenger Enquiry portal (indianrail.gov.in) to check your PNR status.");
-    window.open(`https://indianrail.gov.in/enquiry/PNR/${clean}`, "_blank", "noopener,noreferrer");
+    window.open("https://www.indianrail.gov.in/enquiry/PNR/PNR_Enq.html", "_blank", "noopener,noreferrer");
   }, [pnrInput]);
 
   const handleTrainSubmit = useCallback((e: React.FormEvent) => {
@@ -105,8 +105,8 @@ export function LiveTransitTracker() {
       return;
     }
 
-    alert("You are being redirected to the official Indian Railways Passenger Enquiry portal (indianrail.gov.in) to check train running status.");
-    window.open(`https://indianrail.gov.in/enquiry/TrainStatus/${clean}`, "_blank", "noopener,noreferrer");
+    alert("You are being redirected to the official Indian Railways Passenger Enquiry portal (indianrail.gov.in) to check train running status. Please enter your train number on the page.");
+    window.open("https://www.indianrail.gov.in/enquiry/TrainStatus/TrainStatus.html", "_blank", "noopener,noreferrer");
   }, [trainInput]);
 
   const handleFlightSearch = useCallback(async (e: React.FormEvent) => {
