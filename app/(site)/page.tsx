@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { HeroScene3D } from "@/components/HeroScene3D";
+import { InteractiveGlobe } from "@/components/InteractiveGlobe";
 import { FloatingSuitcase } from "@/components/FloatingSuitcase";
 import { TodayFactCard } from "@/components/TodayFactCard";
 import { NewsGrid } from "@/components/NewsGrid";
@@ -13,6 +13,7 @@ import { AdvisoriesGlobe } from "@/components/AdvisoriesGlobe";
 import { StateTourismTimeline } from "@/components/StateTourismTimeline";
 import { UpcomingFestivalAlerts } from "@/components/UpcomingFestivalAlerts";
 import { WorldAlertOverview } from "@/components/WorldAlertOverview";
+import { GlobalAqiRanking } from "@/components/GlobalAqiRanking";
 import { JourneyCanvas } from "@/components/JourneyCanvas";
 import { MagneticButton } from "@/components/MagneticButton";
 import { LiveTransitTracker } from "@/components/LiveTransitTracker";
@@ -65,30 +66,40 @@ export default function HomePage() {
             </MagneticButton>
           </div>
 
-          {/* Rotating 3D earth block */}
+          {/* Interactive Country Explorer Globe */}
           <div className="w-full pt-8">
-            <HeroScene3D />
+            <InteractiveGlobe />
           </div>
         </section>
 
         {/* Dynamic Float Suitcase (Only desktop view) */}
         <FloatingSuitcase />
 
-        {/* SECTION 1.5: WORLD ALERTS & AQI OVERVIEW */}
+        {/* SECTION 1.5: WORLD ALERTS — Live Weather Intelligence */}
         <WorldAlertOverview />
+
+        {/* SECTION 1.6: GLOBAL AQI RANKING — Standalone Section */}
+        <GlobalAqiRanking />
 
         {/* SECTION 1.75: LIVE TRANSIT TRACKER */}
         <LiveTransitTracker />
 
         {/* SECTION 2: TODAY FACT CARD */}
-        <section id="daily-facts" className="max-w-3xl mx-auto text-center space-y-6 scroll-mt-24">
-          <div className="space-y-2">
+        <section id="daily-facts" className="relative max-w-3xl mx-auto text-center space-y-6 scroll-mt-24">
+          {/* Background pattern behind the card */}
+          <div className="absolute inset-0 -inset-x-20 -inset-y-10 pointer-events-none">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-sunset-1/[0.03] to-transparent rounded-[3rem]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sunset-1/5 rounded-full blur-[120px]" />
+          </div>
+          <div className="relative z-10 space-y-2">
             <span className="text-[10px] uppercase font-bold text-sunset-1 tracking-widest">Postcard Dispatch</span>
             <h2 className="font-display font-black text-heading-xl md:text-heading-2xl leading-tight">
               Today in Travel
             </h2>
           </div>
-          <TodayFactCard />
+          <div className="relative z-10">
+            <TodayFactCard />
+          </div>
         </section>
 
         {/* SECTION 2.5: UPCOMING FESTIVALS & EVENTS WORLDWIDE */}
