@@ -39,6 +39,7 @@ import type {
 } from "@/types/itinerary";
 import { DESTINATION_THEMES } from "@/types/itinerary";
 import { parseItineraryContent, createBlankItinerary, preProcessPastedText } from "@/lib/itinerary-parser";
+import { parseItineraryWithAI } from "@/lib/ai-itinerary-parser";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SAMPLE ITINERARY TEXT (for placeholder / demo)
@@ -154,6 +155,8 @@ export default function ItineraryMakerPage() {
   const [activeTab, setActiveTab] = useState<TabId>("trip");
   const [isParsed, setIsParsed] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
+  const [parseMode, setParseMode] = useState<"ai" | "regex" | null>(null);
   const [showPreview, setShowPreview] = useState(false);
 
   // ── Detected theme ────────────────────────────────────────────────────
@@ -165,16 +168,33 @@ export default function ItineraryMakerPage() {
 
   // ── Quick Mode: Parse ─────────────────────────────────────────────────
 
-  const handleParse = useCallback(() => {
+  const handleParse = useCallback(async () => {
     if (!rawText.trim()) return;
+    
+    // Quick preprocessing for line breaks
     const formattedText = preProcessPastedText(rawText);
     if (formattedText !== rawText) {
       setRawText(formattedText);
     }
-    const parsed = parseItineraryContent(formattedText);
-    setItinerary(parsed);
-    setIsParsed(true);
-    setShowPreview(true);
+
+    setIsParsing(true);
+    try {
+      const parsed = await parseItineraryWithAI(formattedText);
+      setItinerary(parsed);
+      setParseMode(parsed.isAiParsed ? "ai" : "regex");
+      setIsParsed(true);
+      setShowPreview(true);
+    } catch (err) {
+      console.error("AI parsing failed:", err);
+      // Fail-safe direct fallback:
+      const parsed = parseItineraryContent(formattedText);
+      setItinerary(parsed);
+      setParseMode("regex");
+      setIsParsed(true);
+      setShowPreview(true);
+    } finally {
+      setIsParsing(false);
+    }
   }, [rawText, setRawText]);
 
   // ── Load sample ───────────────────────────────────────────────────────
@@ -500,15 +520,24 @@ export default function ItineraryMakerPage() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleParse}
-                    disabled={!rawText.trim()}
+                    disabled={!rawText.trim() || isParsing}
                     className="btn btn-md btn-primary flex-1 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    <Eye className="w-4.5 h-4.5" />
-                    Parse & Preview
+                    {isParsing ? (
+                      <>
+                        <div className="w-4.5 h-4.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ✨ AI Parsing & Polishing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4.5 h-4.5 text-yellow-300 fill-yellow-300 animate-pulse" />
+                        Parse with Comfort AI
+                      </>
+                    )}
                   </button>
                   <button
                     onClick={() => handleGeneratePDF("download")}
-                    disabled={!isParsed || isGenerating}
+                    disabled={!isParsed || isGenerating || isParsing}
                     className="btn btn-md rounded-xl flex-1 font-bold
                       bg-gradient-to-r from-sunset-4 to-sunset-3 text-white
                       shadow-lg shadow-sunset-4/20
@@ -530,7 +559,7 @@ export default function ItineraryMakerPage() {
                   </button>
                   <button
                     onClick={() => handleGeneratePDF("open")}
-                    disabled={!isParsed || isGenerating}
+                    disabled={!isParsed || isGenerating || isParsing}
                     className="btn btn-md btn-secondary rounded-xl flex-1 font-bold disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Eye className="w-4.5 h-4.5 text-sunset-1" />
@@ -557,6 +586,17 @@ export default function ItineraryMakerPage() {
                         <Palette className="w-3 h-3" />
                         {detectedTheme.emoji} {detectedTheme.label} Theme
                       </span>
+                      {parseMode === "ai" ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 dark:bg-purple-900/35 dark:text-purple-300 border border-purple-200 dark:border-purple-800 animate-pulse">
+                          <Sparkles className="w-3 h-3 text-purple-500 fill-purple-500" />
+                          Comfort AI Polished
+                        </span>
+                      ) : parseMode === "regex" ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/35 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                          <Info className="w-3 h-3 text-amber-500" />
+                          Basic Parser (AI Offline)
+                        </span>
+                      ) : null}
                       {itinerary.destinations.map((d) => (
                         <span
                           key={d}

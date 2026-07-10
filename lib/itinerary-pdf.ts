@@ -126,6 +126,26 @@ class PageManager {
     }
   }
 
+  /** Draw background tint and double frame borders on content pages */
+  drawPageDecorations(): void {
+    const doc = this.doc;
+    const t = this.theme;
+
+    // 1. Draw page background
+    setFillColor(doc, t.tint);
+    doc.rect(0, 0, PAGE_W, PAGE_H, "F");
+
+    // 2. Draw outer border frame (Vivid Tangerine)
+    setDrawColor(doc, t.primary);
+    doc.setLineWidth(0.18);
+    doc.rect(MARGIN_L - 4, 6, CONTENT_W + 8, PAGE_H - 12, "S");
+
+    // 3. Draw inner border frame (Slate grey)
+    setDrawColor(doc, "#E2E8F0");
+    doc.setLineWidth(0.08);
+    doc.rect(MARGIN_L - 3, 7, CONTENT_W + 6, PAGE_H - 14, "S");
+  }
+
   /** Add a new page with header and footer */
   addPage(): void {
     this.renderFooter();
@@ -133,9 +153,8 @@ class PageManager {
     this.pageCount++;
     this.currentY = MARGIN_T;
     
-    // Draw content page beige background
-    setFillColor(this.doc, this.theme.tint);
-    this.doc.rect(0, 0, PAGE_W, PAGE_H, "F");
+    // Draw decorations and border frames
+    this.drawPageDecorations();
     
     this.renderHeader();
     this.currentY = MARGIN_T + HEADER_H;
@@ -235,7 +254,7 @@ function renderCover(pm: PageManager): void {
   doc.rect(0, 0, PAGE_W, PAGE_H, "F");
 
   // Modern abstract vector glow spots (Low opacity circles for luxury look)
-  setFillColor(doc, t.secondary); // Electric Aqua
+  setFillColor(doc, t.secondary); // Electric Teal
   doc.setGState(doc.GState({ opacity: 0.08 }));
   doc.circle(PAGE_W * 0.95, PAGE_H * 0.1, 70, "F");
 
@@ -245,7 +264,24 @@ function renderCover(pm: PageManager): void {
   
   doc.setGState(doc.GState({ opacity: 1 })); // Reset opacity
 
-  // 1. Draw preloaded logo in center top
+  // ── Draw curved dashed flight path/journey trail across background ──
+  doc.setLineWidth(0.35);
+  setDrawColor(doc, t.secondary);
+  const p0 = { x: PAGE_W * 0.15, y: PAGE_H * 0.25 };
+  const p1 = { x: PAGE_W * 0.8, y: PAGE_H * 0.2 };
+  const p2 = { x: PAGE_W * 0.88, y: PAGE_H * 0.65 };
+
+  for (let t_val = 0; t_val <= 1; t_val += 0.02) {
+    const mt = 1 - t_val;
+    const x = mt * mt * p0.x + 2 * mt * t_val * p1.x + t_val * t_val * p2.x;
+    const y = mt * mt * p0.y + 2 * mt * t_val * p1.y + t_val * t_val * p2.y;
+    doc.circle(x, y, 0.35, "F");
+  }
+  // Draw tiny vector airplane triangle at the end of the line
+  setFillColor(doc, t.secondary);
+  doc.triangle(p2.x, p2.y - 1.5, p2.x - 1.2, p2.y + 1.2, p2.x + 1.2, p2.y + 1.2, "F");
+
+  // 1. Draw preloaded logo in center top or decorative compass
   let startY = 66;
   if (pm.logoBase64) {
     try {
@@ -254,12 +290,29 @@ function renderCover(pm: PageManager): void {
     } catch (e) {
       console.warn("Error drawing cover logo:", e);
     }
+  } else {
+    // Elegant fallback compass icon in top center
+    const compassX = PAGE_W / 2;
+    const compassY = 36;
+    doc.setLineWidth(0.4);
+    setDrawColor(doc, t.secondary);
+    doc.circle(compassX, compassY, 7, "S");
+    doc.circle(compassX, compassY, 8.2, "S");
+    // Cross hairs
+    doc.line(compassX - 11, compassY, compassX + 11, compassY);
+    doc.line(compassX, compassY - 11, compassX, compassY + 11);
+    // Needle
+    setFillColor(doc, t.primary);
+    doc.triangle(compassX, compassY - 6.2, compassX - 1.5, compassY, compassX + 1.5, compassY, "F");
+    setFillColor(doc, "#FFFFFF");
+    doc.triangle(compassX, compassY + 6.2, compassX - 1.5, compassY, compassX + 1.5, compassY, "F");
+    startY = 68;
   }
 
   // 2. Modern pre-header subtitle (spaced-out uppercase)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6.5);
-  setColor(doc, t.secondary); // Electric Aqua
+  setColor(doc, t.secondary); // Electric Teal
   doc.text("P R E M I U M   T R A V E L   P R O P O S A L", PAGE_W / 2, startY, { align: "center" });
 
   // 3. Main Trip Title
@@ -332,26 +385,86 @@ function renderCover(pm: PageManager): void {
   }
 }
 
-/** Render a section heading */
+/** Render a section heading with custom vector travel icons */
 function renderSectionHeading(pm: PageManager, title: string): void {
   pm.ensureSpace(16);
   const { doc, theme: t } = pm;
+  const iconX = MARGIN_L;
+  const iconY = pm.currentY;
 
-  // Vertical accent block
-  setFillColor(doc, t.primary); // Vivid Tangerine vertical block
-  doc.rect(MARGIN_L, pm.currentY, 3, 7.5, "F");
+  // Draw custom vector travel icon next to the heading
+  const lowerTitle = title.toLowerCase();
+  doc.setLineWidth(0.4);
+  
+  if (lowerTitle.includes("day-wise") || lowerTitle.includes("itinerary")) {
+    // Calendar Icon
+    setDrawColor(doc, t.primary);
+    doc.rect(iconX, iconY + 1.2, 5, 5, "S");
+    doc.line(iconX, iconY + 2.8, iconX + 5, iconY + 2.8);
+    setFillColor(doc, t.primary);
+    doc.circle(iconX + 1.5, iconY + 0.8, 0.5, "F");
+    doc.circle(iconX + 3.5, iconY + 0.8, 0.5, "F");
+  } else if (lowerTitle.includes("accommodation") || lowerTitle.includes("hotel")) {
+    // Hotel Building Icon
+    setDrawColor(doc, t.primary);
+    doc.rect(iconX, iconY + 0.8, 5, 5.5, "S");
+    doc.line(iconX + 1.5, iconY + 2.2, iconX + 1.5, iconY + 2.9);
+    doc.line(iconX + 3.5, iconY + 2.2, iconX + 3.5, iconY + 2.9);
+    doc.line(iconX + 1.5, iconY + 3.9, iconX + 1.5, iconY + 4.6);
+    doc.line(iconX + 3.5, iconY + 3.9, iconX + 3.5, iconY + 4.6);
+    doc.rect(iconX + 2.0, iconY + 5.0, 1.0, 1.3, "S");
+  } else if (lowerTitle.includes("transport") || lowerTitle.includes("flight")) {
+    // Airplane Icon
+    setDrawColor(doc, t.secondary);
+    doc.setLineWidth(0.45);
+    // Fuselage
+    doc.line(iconX + 2.5, iconY + 0.5, iconX + 2.5, iconY + 6);
+    // Wings
+    doc.line(iconX + 0.3, iconY + 2.5, iconX + 4.7, iconY + 2.5);
+    // Tail wing
+    doc.line(iconX + 1.5, iconY + 5.2, iconX + 3.5, iconY + 5.2);
+  } else if (lowerTitle.includes("pricing") || lowerTitle.includes("cost") || lowerTitle.includes("payment")) {
+    // Price Tag Icon (Circle with "Rs")
+    setDrawColor(doc, t.primary);
+    doc.circle(iconX + 2.5, iconY + 3.5, 2.5, "S");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(4.5);
+    setColor(doc, t.primary);
+    doc.text("Rs", iconX + 1.4, iconY + 4.2);
+  } else if (lowerTitle.includes("inclusions") || lowerTitle.includes("exclusions")) {
+    // Shield Icon (Vector lines)
+    setDrawColor(doc, t.secondary);
+    doc.line(iconX + 2.5, iconY + 0.8, iconX + 4.7, iconY + 1.8);
+    doc.line(iconX + 4.7, iconY + 1.8, iconX + 4.7, iconY + 4.5);
+    doc.line(iconX + 4.7, iconY + 4.5, iconX + 2.5, iconY + 6.3);
+    doc.line(iconX + 2.5, iconY + 6.3, iconX + 0.3, iconY + 4.5);
+    doc.line(iconX + 0.3, iconY + 4.5, iconX + 0.3, iconY + 1.8);
+    doc.line(iconX + 0.3, iconY + 1.8, iconX + 2.5, iconY + 0.8);
+  } else if (lowerTitle.includes("terms") || lowerTitle.includes("policy") || lowerTitle.includes("conditions")) {
+    // Document Icon
+    setDrawColor(doc, t.dark);
+    doc.rect(iconX + 0.5, iconY + 0.8, 4, 5.5, "S");
+    doc.line(iconX + 1.3, iconY + 2.2, iconX + 3.7, iconY + 2.2);
+    doc.line(iconX + 1.3, iconY + 3.4, iconX + 3.7, iconY + 3.4);
+    doc.line(iconX + 1.3, iconY + 4.6, iconX + 2.7, iconY + 4.6);
+  } else {
+    // Default Map Pin Icon
+    setDrawColor(doc, t.primary);
+    doc.circle(iconX + 2.5, iconY + 2.5, 1.8, "S");
+    doc.line(iconX + 2.5, iconY + 4.3, iconX + 2.5, iconY + 6.2);
+  }
 
-  // Title
+  // Section Title (Pushed right to leave space for icon)
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(10.5);
   setColor(doc, t.dark);
-  doc.text(title.toUpperCase(), MARGIN_L + 6, pm.currentY + 6.5);
+  doc.text(title.toUpperCase(), MARGIN_L + 7.5, pm.currentY + 5.2);
 
-  // Bottom double accent lines
+  // Bottom double accent lines (elegant thin divider)
   setFillColor(doc, t.dark);
-  doc.rect(MARGIN_L, pm.currentY + 10, CONTENT_W, 0.5, "F");
+  doc.rect(MARGIN_L, pm.currentY + 8.5, CONTENT_W, 0.4, "F");
 
-  pm.moveDown(15);
+  pm.moveDown(13);
 }
 
 /** Render day-wise itinerary */
@@ -849,9 +962,8 @@ export async function generateItineraryPDF(data: ItineraryData, action: "downloa
   pm.pageCount = 2;
   pm.currentY = MARGIN_T;
 
-  // Draw content beige background on page 2
-  setFillColor(doc, theme.tint);
-  doc.rect(0, 0, PAGE_W, PAGE_H, "F");
+  // Draw content beige background and border frames on page 2
+  pm.drawPageDecorations();
 
   pm.renderHeader();
   pm.currentY = MARGIN_T + HEADER_H;
