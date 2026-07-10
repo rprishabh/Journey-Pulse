@@ -21,6 +21,19 @@ const CONTENT_W = PAGE_W - MARGIN_L - MARGIN_R;
 const HEADER_H = 16;
 const FOOTER_H = 12;
 
+// Curated high-resolution Unsplash cover images for travel themes
+const THEME_BANNER_MAP: Record<string, string> = {
+  mountains: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80",
+  beach: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+  desert: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80",
+  heritage: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80",
+  tropical: "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=800&q=80",
+  urban: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=800&q=80",
+  spiritual: "https://images.unsplash.com/photo-1608958416870-87a2d8157771?auto=format&fit=crop&w=800&q=80",
+  international: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80",
+  default: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80",
+};
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // COLOR HELPERS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -104,14 +117,22 @@ class PageManager {
   currentY: number;
   pageCount: number;
   logoBase64: string | null;
+  bannerBase64: string | null;
 
-  constructor(doc: jsPDF, theme: DestinationTheme, data: ItineraryData, logoBase64: string | null = null) {
+  constructor(
+    doc: jsPDF, 
+    theme: DestinationTheme, 
+    data: ItineraryData, 
+    logoBase64: string | null = null,
+    bannerBase64: string | null = null
+  ) {
     this.doc = doc;
     this.theme = theme;
     this.data = data;
     this.currentY = MARGIN_T + HEADER_H;
     this.pageCount = 1;
     this.logoBase64 = logoBase64;
+    this.bannerBase64 = bannerBase64;
   }
 
   /** Available vertical space before footer */
@@ -249,27 +270,45 @@ class PageManager {
 function renderCover(pm: PageManager): void {
   const { doc, theme: t, data } = pm;
 
-  // Full-page Deep Navy background
+  // 1. Full-page background (Deep Navy)
   setFillColor(doc, t.dark);
   doc.rect(0, 0, PAGE_W, PAGE_H, "F");
+
+  // 2. Draw high-res themed cover banner if loaded
+  if (pm.bannerBase64) {
+    try {
+      // Draw banner in top 38% of the cover page
+      doc.addImage(pm.bannerBase64, "JPEG", 0, 0, PAGE_W, 105);
+    } catch (e) {
+      console.warn("Error drawing cover banner image:", e);
+    }
+  }
+
+  // 3. Draw smooth sinusoidal wave masking in navy to overlay the banner edge
+  setFillColor(doc, t.dark);
+  doc.rect(0, 102, PAGE_W, PAGE_H - 102, "F"); // Navy bottom block
+  
+  // Create smooth wave mask using overlapping circles
+  for (let x = 0; x <= PAGE_W; x += 0.8) {
+    const y = 102 + Math.sin(x / 13) * 4;
+    doc.circle(x, y, 4.5, "F");
+  }
 
   // Modern abstract vector glow spots (Low opacity circles for luxury look)
   setFillColor(doc, t.secondary); // Electric Teal
   doc.setGState(doc.GState({ opacity: 0.08 }));
   doc.circle(PAGE_W * 0.95, PAGE_H * 0.1, 70, "F");
-
-  setFillColor(doc, t.primary); // Vivid Tangerine
-  doc.setGState(doc.GState({ opacity: 0.06 }));
-  doc.circle(0, PAGE_H * 0.9, 90, "F");
   
+  doc.setGState(doc.GState({ opacity: 0.04 }));
+  doc.circle(0, PAGE_H * 0.9, 90, "F");
   doc.setGState(doc.GState({ opacity: 1 })); // Reset opacity
 
-  // ── Draw curved dashed flight path/journey trail across background ──
+  // 4. Curved dashed journey flight trail
   doc.setLineWidth(0.35);
   setDrawColor(doc, t.secondary);
-  const p0 = { x: PAGE_W * 0.15, y: PAGE_H * 0.25 };
-  const p1 = { x: PAGE_W * 0.8, y: PAGE_H * 0.2 };
-  const p2 = { x: PAGE_W * 0.88, y: PAGE_H * 0.65 };
+  const p0 = { x: PAGE_W * 0.15, y: 120 };
+  const p1 = { x: PAGE_W * 0.7, y: 110 };
+  const p2 = { x: PAGE_W * 0.88, y: 180 };
 
   for (let t_val = 0; t_val <= 1; t_val += 0.02) {
     const mt = 1 - t_val;
@@ -281,63 +320,72 @@ function renderCover(pm: PageManager): void {
   setFillColor(doc, t.secondary);
   doc.triangle(p2.x, p2.y - 1.5, p2.x - 1.2, p2.y + 1.2, p2.x + 1.2, p2.y + 1.2, "F");
 
-  // 1. Draw preloaded logo in center top or decorative compass
-  let startY = 66;
+  // 5. Draw preloaded logo in center top or decorative compass
+  let startY = 120;
+  
+  // Compass decorative element in bottom-right corner as a watermark
+  const watermarkX = PAGE_W - MARGIN_R - 12;
+  const watermarkY = PAGE_H - 68;
+  doc.setLineWidth(0.2);
+  setDrawColor(doc, "#ffffff22");
+  doc.circle(watermarkX, watermarkY, 6, "S");
+  doc.line(watermarkX - 8, watermarkY, watermarkX + 8, watermarkY);
+  doc.line(watermarkX, watermarkY - 8, watermarkX, watermarkY + 8);
+
   if (pm.logoBase64) {
     try {
-      doc.addImage(pm.logoBase64, "PNG", PAGE_W / 2 - 17, 24, 34, 34);
-      startY = 68;
+      // Place logo elegantly in the bottom area or header area
+      doc.addImage(pm.logoBase64, "PNG", PAGE_W / 2 - 12, 114, 24, 24);
+      startY = 144;
     } catch (e) {
       console.warn("Error drawing cover logo:", e);
     }
   } else {
-    // Elegant fallback compass icon in top center
+    // Elegant fallback compass icon in center top
     const compassX = PAGE_W / 2;
-    const compassY = 36;
+    const compassY = 125;
     doc.setLineWidth(0.4);
     setDrawColor(doc, t.secondary);
-    doc.circle(compassX, compassY, 7, "S");
-    doc.circle(compassX, compassY, 8.2, "S");
-    // Cross hairs
-    doc.line(compassX - 11, compassY, compassX + 11, compassY);
-    doc.line(compassX, compassY - 11, compassX, compassY + 11);
-    // Needle
+    doc.circle(compassX, compassY, 6, "S");
+    doc.circle(compassX, compassY, 7.2, "S");
+    doc.line(compassX - 10, compassY, compassX + 10, compassY);
+    doc.line(compassX, compassY - 10, compassX, compassY + 10);
     setFillColor(doc, t.primary);
-    doc.triangle(compassX, compassY - 6.2, compassX - 1.5, compassY, compassX + 1.5, compassY, "F");
+    doc.triangle(compassX, compassY - 5.5, compassX - 1.2, compassY, compassX + 1.2, compassY, "F");
     setFillColor(doc, "#FFFFFF");
-    doc.triangle(compassX, compassY + 6.2, compassX - 1.5, compassY, compassX + 1.5, compassY, "F");
-    startY = 68;
+    doc.triangle(compassX, compassY + 5.5, compassX - 1.2, compassY, compassX + 1.2, compassY, "F");
+    startY = 144;
   }
 
-  // 2. Modern pre-header subtitle (spaced-out uppercase)
+  // 6. Modern pre-header subtitle (spaced-out uppercase)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(6.5);
   setColor(doc, t.secondary); // Electric Teal
   doc.text("P R E M I U M   T R A V E L   P R O P O S A L", PAGE_W / 2, startY, { align: "center" });
 
-  // 3. Main Trip Title
+  // 7. Main Trip Title
   doc.setFont("helvetica", "bold");
   doc.setFontSize(23);
   setColor(doc, "#FFFFFF");
   const titleLines = wrapText(doc, data.tripTitle || "Travel Itinerary", CONTENT_W - 24);
-  let titleY = startY + 11;
+  let titleY = startY + 10;
   for (const line of titleLines) {
     doc.text(cleanText(line), PAGE_W / 2, titleY, { align: "center" });
-    titleY += 10;
+    titleY += 9.5;
   }
 
-  // 4. Highlight destinations (Vivid Tangerine)
+  // 8. Highlight destinations (Vivid Tangerine)
   if (data.destinations.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9.5);
     setColor(doc, t.primary); 
     const destText = data.destinations.join("   •   ").toUpperCase();
-    doc.text(cleanText(destText), PAGE_W / 2, titleY + 4, { align: "center" });
-    titleY += 12;
+    doc.text(cleanText(destText), PAGE_W / 2, titleY + 3, { align: "center" });
+    titleY += 11;
   }
 
-  // 5. Sleek modern info dashboard card (border-less, slightly lighter solid navy background)
-  titleY += 6;
+  // 9. Sleek modern info dashboard card (border-less, slightly lighter solid navy background)
+  titleY += 4;
   setFillColor(doc, "#0a224a"); // Solid lighter navy block
   doc.roundedRect(MARGIN_L + 8, titleY, CONTENT_W - 16, 17, 2, 2, "F");
 
@@ -366,22 +414,22 @@ function renderCover(pm: PageManager): void {
   const paxText = data.pax ? `${data.pax} Guests` : "Flexible";
   doc.text(cleanText(paxText), x3, valY, { align: "center" });
 
-  // 6. Bottom footer area
-  const bandY = PAGE_H - 42;
+  // 10. Bottom footer area
+  const bandY = PAGE_H - 32;
   setFillColor(doc, t.primary); // Vivid Tangerine fine line
   doc.rect(MARGIN_L, bandY, CONTENT_W, 0.4, "F");
 
   doc.setFont("helvetica", "italic");
   doc.setFontSize(8);
   setColor(doc, "#CCCCCC");
-  doc.text("Custom-crafted premium travel experience", PAGE_W / 2, bandY + 8, { align: "center" });
+  doc.text("Custom-crafted premium travel experience", PAGE_W / 2, bandY + 6, { align: "center" });
 
   const contactParts = [data.contact.phone, data.contact.email, data.contact.website].filter(Boolean);
   if (contactParts.length > 0) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
     setColor(doc, "#DAF561"); // Lime Cream accent contact
-    doc.text(cleanText(contactParts.join("   |   ")), PAGE_W / 2, bandY + 16, { align: "center" });
+    doc.text(cleanText(contactParts.join("   |   ")), PAGE_W / 2, bandY + 13, { align: "center" });
   }
 }
 
@@ -467,54 +515,60 @@ function renderSectionHeading(pm: PageManager, title: string): void {
   pm.moveDown(13);
 }
 
-/** Render day-wise itinerary */
+/** Render day-wise itinerary with a running vertical timeline thread */
 function renderDays(pm: PageManager): void {
   if (pm.data.days.length === 0) return;
 
   renderSectionHeading(pm, "Day-Wise Itinerary");
 
-  for (const day of pm.data.days) {
-    // Estimate space needed
-    const descLines = wrapText(pm.doc, day.description, CONTENT_W - 14);
-    const neededHeight = 14 + descLines.length * 4.2 + (day.meals || day.overnight ? 10 : 0) + 6;
+  const { doc, theme: t } = pm;
+  const timelineX = MARGIN_L + 5;
+
+  for (let idx = 0; idx < pm.data.days.length; idx++) {
+    const day = pm.data.days[idx];
+    
+    // Estimate space needed: wrap text to fit within timeline column (CONTENT_W - 16)
+    const descLines = wrapText(doc, day.description, CONTENT_W - 18);
+    const neededHeight = 12 + descLines.length * 4.2 + (day.meals || day.overnight ? 9 : 0) + 6;
+    
     pm.ensureSpace(Math.min(neededHeight, 60));
 
-    const { doc, theme: t } = pm;
+    const startY = pm.currentY;
 
-    // Day number badge (Vivid Tangerine)
+    // 1. Day number circular badge node (Vivid Tangerine)
     setFillColor(doc, t.primary);
-    doc.roundedRect(MARGIN_L, pm.currentY, 26, 7, 1.5, 1.5, "F");
+    doc.circle(timelineX, startY + 3.5, 3.5, "F");
     
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(7);
+    doc.setFontSize(7.5);
     setColor(doc, "#FFFFFF");
-    doc.text(`DAY ${day.dayNumber}`, MARGIN_L + 13, pm.currentY + 4.8, { align: "center" });
+    doc.text(String(day.dayNumber), timelineX, startY + 6.0, { align: "center" });
 
-    // Day title
+    // 2. Day title (Pushed right to MARGIN_L + 13)
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9.5);
     setColor(doc, t.dark);
     const cleanedTitle = cleanText(day.title);
     const titleTruncated = cleanedTitle.length > 80 ? cleanedTitle.substring(0, 80) + "..." : cleanedTitle;
-    doc.text(titleTruncated, MARGIN_L + 30, pm.currentY + 5);
+    doc.text(titleTruncated, MARGIN_L + 12, startY + 4.5);
 
-    pm.moveDown(11);
+    pm.moveDown(9);
 
-    // Description text
+    // 3. Description text (Pushed right)
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8.2);
     setColor(doc, t.dark);
 
     for (const line of descLines) {
       pm.ensureSpace(5);
-      doc.text(line, MARGIN_L + 6, pm.currentY);
+      doc.text(line, MARGIN_L + 12, pm.currentY);
       pm.moveDown(4.0);
     }
 
-    // Pills for Meals & Overnight
+    // 4. Stay & Meals Pill tags
     if (day.meals || day.overnight) {
       pm.ensureSpace(8);
-      let pillX = MARGIN_L + 6;
+      let pillX = MARGIN_L + 12;
 
       if (day.meals) {
         const mealTxt = `Meals: ${day.meals}`;
@@ -547,9 +601,20 @@ function renderDays(pm: PageManager): void {
       pm.moveDown(8);
     }
 
+    // 5. Draw connecting vertical timeline thread segment down to the bottom
+    const endY = pm.currentY;
+    
+    // Draw the vertical line segment connecting days
+    doc.setLineWidth(0.4);
+    setDrawColor(doc, t.primary);
+    // Draw only if it's not the last day (last day doesn't need to lead anywhere)
+    if (idx < pm.data.days.length - 1) {
+      doc.line(timelineX, startY + 7.5, timelineX, endY + 2);
+    }
+
     // Separator line
     setFillColor(doc, "#E2E8F0");
-    doc.rect(MARGIN_L + 6, pm.currentY, CONTENT_W - 12, 0.2, "F");
+    doc.rect(MARGIN_L + 12, pm.currentY, CONTENT_W - 12, 0.2, "F");
     pm.moveDown(6);
   }
 }
@@ -671,53 +736,67 @@ function renderPricing(pm: PageManager): void {
 
   const { doc, theme: t } = pm;
 
-  // Summary card
+  // 1. Summary banner
   if (pricing.summary) {
     pm.ensureSpace(12);
+    // Draw modern solid badge block (Vivid Tangerine)
+    setFillColor(doc, t.primary);
+    doc.roundedRect(MARGIN_L, pm.currentY, CONTENT_W, 10, 1.5, 1.5, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    setColor(doc, "#FFFFFF");
+    doc.text(cleanText(pricing.summary).toUpperCase(), PAGE_W / 2, pm.currentY + 6.5, { align: "center" });
+    pm.moveDown(14);
+  }
+
+  // 2. Pricing Line items styled as structured cards
+  for (const item of pricing.items) {
+    pm.ensureSpace(12);
+    
+    // Solid card block
     setFillColor(doc, "#FFFFFF");
-    setDrawColor(doc, t.primary);
+    setDrawColor(doc, "#E2E8F0");
     doc.setLineWidth(0.3);
-    doc.roundedRect(MARGIN_L, pm.currentY, CONTENT_W, 9, 1.5, 1.5, "FD");
+    doc.roundedRect(MARGIN_L, pm.currentY, CONTENT_W, 9, 1, 1, "FD");
+    
+    // Accent left strip (Electric Teal)
+    setFillColor(doc, t.secondary);
+    doc.rect(MARGIN_L, pm.currentY, 1.2, 9, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    setColor(doc, t.dark);
+    doc.text(cleanText(item.label), MARGIN_L + 5, pm.currentY + 5.8);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8.5);
     setColor(doc, t.primary);
-    doc.text(cleanText(pricing.summary), PAGE_W / 2, pm.currentY + 6, { align: "center" });
-    pm.moveDown(13);
+    doc.text(cleanText(item.amount), PAGE_W - MARGIN_R - 5, pm.currentY + 6.0, { align: "right" });
+
+    pm.moveDown(12);
   }
 
-  // Pricing Line items
-  for (const item of pricing.items) {
-    pm.ensureSpace(8);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8.5);
-    setColor(doc, t.dark);
-    doc.text(cleanText(item.label), MARGIN_L + 4, pm.currentY + 4);
-
-    doc.setFont("helvetica", "bold");
-    doc.text(cleanText(item.amount), PAGE_W - MARGIN_R - 4, pm.currentY + 4, { align: "right" });
-
-    // Subtle line divider
-    setFillColor(doc, "#E0E5C9");
-    doc.rect(MARGIN_L, pm.currentY + 6, CONTENT_W, 0.3, "F");
-    pm.moveDown(8);
-  }
-
-  // Grand Total Card (Deep Navy)
+  // 3. Grand Total Card (Deep luxury block)
   if (pricing.total) {
-    pm.ensureSpace(14);
+    pm.ensureSpace(16);
     setFillColor(doc, t.dark); // Deep Navy block
-    doc.roundedRect(MARGIN_L, pm.currentY, CONTENT_W, 11, 2, 2, "F");
+    doc.roundedRect(MARGIN_L, pm.currentY, CONTENT_W, 13, 2, 2, "F");
 
+    // Compass logo overlay inside total block
+    doc.setLineWidth(0.25);
+    setDrawColor(doc, "#ffffff15");
+    doc.circle(MARGIN_L + 12, pm.currentY + 6.5, 3.5, "S");
+    
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9.5);
     setColor(doc, "#FFFFFF");
-    doc.text("TOTAL PACKAGE COST", MARGIN_L + 6, pm.currentY + 7);
+    doc.text("TOTAL INVESTMENT", MARGIN_L + 20, pm.currentY + 8.2);
 
-    setColor(doc, "#DAF561"); // Lime Cream text amount
-    doc.setFontSize(10.5);
-    doc.text(cleanText(pricing.total), PAGE_W - MARGIN_R - 6, pm.currentY + 7.5, { align: "right" });
-    pm.moveDown(16);
+    setColor(doc, "#DAF561"); // Lime Cream highlight text
+    doc.setFontSize(11);
+    doc.text(cleanText(pricing.total), PAGE_W - MARGIN_R - 8, pm.currentY + 8.5, { align: "right" });
+    pm.moveDown(17);
   }
 
   // Payment terms
@@ -942,6 +1021,15 @@ export async function generateItineraryPDF(data: ItineraryData, action: "downloa
     console.warn("Failed to load Comfort Journey logo for PDF:", e);
   }
 
+  // 2. Try preloading themed cover banner image
+  let bannerBase64: string | null = null;
+  const bannerUrl = THEME_BANNER_MAP[data.themeKey] || THEME_BANNER_MAP.default;
+  try {
+    bannerBase64 = await getBase64ImageFromUrl(bannerUrl);
+  } catch (e) {
+    console.warn("Failed to load Unsplash themed banner for PDF:", e);
+  }
+
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
@@ -952,13 +1040,13 @@ export async function generateItineraryPDF(data: ItineraryData, action: "downloa
 
   // ── Page 1: Cover ──────────────────────────────────────────────────────
 
-  const coverPm = { doc, theme, data, currentY: 0, pageCount: 1, logoBase64 } as unknown as PageManager;
+  const coverPm = { doc, theme, data, currentY: 0, pageCount: 1, logoBase64, bannerBase64 } as unknown as PageManager;
   renderCover(coverPm);
 
   // ── Content Pages ──────────────────────────────────────────────────────
 
   doc.addPage();
-  const pm = new PageManager(doc, theme, data, logoBase64);
+  const pm = new PageManager(doc, theme, data, logoBase64, bannerBase64);
   pm.pageCount = 2;
   pm.currentY = MARGIN_T;
 
