@@ -190,7 +190,7 @@ export default function ItineraryMakerPage() {
     try {
       // Dynamic import to avoid SSR issues
       const { generateItineraryPDF } = await import("@/lib/itinerary-pdf");
-      generateItineraryPDF(itinerary, action);
+      await generateItineraryPDF(itinerary, action);
     } catch (err) {
       console.error("PDF generation failed:", err);
       alert("Failed to generate PDF. Please check your itinerary data.");

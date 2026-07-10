@@ -69,19 +69,49 @@ function wrapText(doc: jsPDF, text: string, maxWidth: number): string[] {
 // PAGE MANAGEMENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
+function getBase64ImageFromUrl(url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.setAttribute("crossOrigin", "anonymous");
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL("image/png");
+        resolve(dataURL);
+      } else {
+        reject(new Error("Could not get canvas context"));
+      }
+    };
+    img.onerror = (error) => {
+      reject(error);
+    };
+    img.src = url;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PAGE MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════════════════
+
 class PageManager {
   doc: jsPDF;
   theme: DestinationTheme;
   data: ItineraryData;
   currentY: number;
   pageCount: number;
+  logoBase64: string | null;
 
-  constructor(doc: jsPDF, theme: DestinationTheme, data: ItineraryData) {
+  constructor(doc: jsPDF, theme: DestinationTheme, data: ItineraryData, logoBase64: string | null = null) {
     this.doc = doc;
     this.theme = theme;
     this.data = data;
     this.currentY = MARGIN_T + HEADER_H;
     this.pageCount = 1;
+    this.logoBase64 = logoBase64;
   }
 
   /** Available vertical space before footer */
@@ -116,69 +146,78 @@ class PageManager {
     this.currentY += mm;
   }
 
-  // ── Header ──────────────────────────────────────────────────────────────
+  // ── Header (Modern & Minimalist) ────────────────────────────────────────
 
   renderHeader(): void {
     const doc = this.doc;
     const t = this.theme;
 
-    // Header background bar (Deep Navy)
-    setFillColor(doc, t.dark);
-    doc.rect(0, 0, PAGE_W, 14, "F");
-
-    // Decorative brand line (Vivid Tangerine)
-    setFillColor(doc, t.primary);
-    doc.rect(0, 14, PAGE_W, 1, "F");
-
-    // Company Logo Text
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    setColor(doc, "#FFFFFF");
-    doc.text(cleanText(this.data.contact.companyName).toUpperCase(), MARGIN_L, 9);
-
-    // Tagline (Electric Aqua)
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(6.5);
-    setColor(doc, t.secondary);
-    doc.text(cleanText(this.data.contact.tagline), MARGIN_L + 45, 9);
+    // Draw logo if available
+    if (this.logoBase64) {
+      try {
+        doc.addImage(this.logoBase64, "PNG", MARGIN_L, 7, 10, 10);
+        // Company Name next to logo
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        setColor(doc, t.dark);
+        doc.text(cleanText(this.data.contact.companyName).toUpperCase(), MARGIN_L + 12, 13);
+      } catch (e) {
+        // Fallback
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        setColor(doc, t.dark);
+        doc.text(cleanText(this.data.contact.companyName).toUpperCase(), MARGIN_L, 13);
+      }
+    } else {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      setColor(doc, t.dark);
+      doc.text(cleanText(this.data.contact.companyName).toUpperCase(), MARGIN_L, 13);
+    }
 
     // Right side — trip title
-    doc.setFont("helvetica", "bold");
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
-    setColor(doc, "#DAF561"); // Lime Cream
+    setColor(doc, "#666666");
     const rightText = (this.data.tripTitle || "Travel Itinerary").toUpperCase();
-    const titleTruncated = rightText.length > 40 ? rightText.substring(0, 40) + "..." : rightText;
-    doc.text(cleanText(titleTruncated), PAGE_W - MARGIN_R, 9, { align: "right" });
+    const titleTruncated = rightText.length > 50 ? rightText.substring(0, 50) + "..." : rightText;
+    doc.text(cleanText(titleTruncated), PAGE_W - MARGIN_R, 13, { align: "right" });
+
+    // Thin elegant separator line in primary brand color (Vivid Tangerine)
+    setFillColor(doc, t.primary);
+    doc.rect(MARGIN_L, 19, CONTENT_W, 0.3, "F");
   }
 
-  // ── Footer ──────────────────────────────────────────────────────────────
+  // ── Footer (Sleek Rule & Clean layout) ───────────────────────────────────
 
   renderFooter(): void {
     const doc = this.doc;
     const t = this.theme;
     const y = PAGE_H - 12;
 
-    // Accent line
-    setFillColor(doc, t.dark);
-    doc.rect(MARGIN_L, y, CONTENT_W, 0.4, "F");
+    // Thin elegant line divider
+    setFillColor(doc, "#E2E8F0");
+    doc.rect(MARGIN_L, y, CONTENT_W, 0.25, "F");
 
-    // Contact info on left
+    // Contact info on left in muted color
     doc.setFont("helvetica", "normal");
     doc.setFontSize(6.5);
-    setColor(doc, t.dark);
+    setColor(doc, "#666666");
     const contactParts = [this.data.contact.phone, this.data.contact.email]
       .filter(Boolean)
-      .join("  |  ");
+      .join("   |   ");
     doc.text(cleanText(contactParts), MARGIN_L, y + 5);
 
-    // Website on right
+    // Website on right in brand accent color
     if (this.data.contact.website) {
+      doc.setFont("helvetica", "bold");
       setColor(doc, t.primary);
       doc.text(cleanText(this.data.contact.website), PAGE_W - MARGIN_R, y + 5, { align: "right" });
     }
 
     // Page number
-    setColor(doc, "#666666");
+    doc.setFont("helvetica", "normal");
+    setColor(doc, "#888888");
     doc.text(`Page ${this.pageCount}`, PAGE_W / 2, y + 5, { align: "center" });
   }
 }
@@ -195,7 +234,7 @@ function renderCover(pm: PageManager): void {
   setFillColor(doc, t.dark);
   doc.rect(0, 0, PAGE_W, PAGE_H, "F");
 
-  // Modern abstract vector glow spots (Low opacity circles)
+  // Modern abstract vector glow spots (Low opacity circles for luxury look)
   setFillColor(doc, t.secondary); // Electric Aqua
   doc.setGState(doc.GState({ opacity: 0.08 }));
   doc.circle(PAGE_W * 0.95, PAGE_H * 0.1, 70, "F");
@@ -204,93 +243,61 @@ function renderCover(pm: PageManager): void {
   doc.setGState(doc.GState({ opacity: 0.06 }));
   doc.circle(0, PAGE_H * 0.9, 90, "F");
   
-  doc.setGState(doc.GState({ opacity: 1 })); // reset opacity
+  doc.setGState(doc.GState({ opacity: 1 })); // Reset opacity
 
-  // Company logo card area
-  setFillColor(doc, t.dark);
-  setDrawColor(doc, t.primary);
-  doc.setLineWidth(0.5);
-  doc.roundedRect(MARGIN_L, 28, CONTENT_W, 20, 2, 2, "FD");
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
-  setColor(doc, "#FFFFFF");
-  doc.text(cleanText(data.contact.companyName || "Comfort Journey"), PAGE_W / 2, 38, { align: "center" });
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
-  setColor(doc, "#DAF561"); // Lime Cream
-  doc.text(cleanText(data.contact.tagline || "Only premium experience. No compromises."), PAGE_W / 2, 44, { align: "center" });
-
-  // Sleek Accent bar
-  setDrawColor(doc, t.primary);
-  doc.setLineWidth(0.8);
-  doc.line(PAGE_W * 0.4, 56, PAGE_W * 0.6, 56);
-
-  // Modern minimal route connection vector
-  const cx = PAGE_W / 2;
-  const cy = 82;
-  
-  setDrawColor(doc, t.secondary); // Electric Aqua
-  doc.setLineWidth(0.6);
-  doc.setLineDashPattern([2, 2], 0);
-  doc.line(cx - 24, cy + 10, cx, cy - 12);
-  doc.line(cx, cy - 12, cx + 24, cy + 8);
-  doc.setLineDashPattern([], 0); // Reset dash
-
-  // Draw node circles
-  setFillColor(doc, t.primary); // Vivid Tangerine
-  doc.circle(cx - 24, cy + 10, 2.5, "F");
-  setFillColor(doc, t.secondary); // Electric Aqua
-  doc.circle(cx, cy - 12, 3.5, "F");
-  setFillColor(doc, "#DAF561"); // Lime Cream
-  doc.circle(cx + 24, cy + 8, 2, "F");
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(5.5);
-  setColor(doc, "#FFFFFF");
-  doc.text("START", cx - 24, cy + 16, { align: "center" });
-  doc.text("EXPLORE", cx, cy - 18, { align: "center" });
-  doc.text("ARRIVE", cx + 24, cy + 14, { align: "center" });
-
-  // Trip title
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(26);
-  setColor(doc, "#FFFFFF");
-  const titleLines = wrapText(doc, data.tripTitle || "Travel Itinerary", CONTENT_W - 20);
-  let titleY = 112;
-  for (const line of titleLines) {
-    doc.text(cleanText(line), PAGE_W / 2, titleY, { align: "center" });
-    titleY += 11;
+  // 1. Draw preloaded logo in center top
+  let startY = 66;
+  if (pm.logoBase64) {
+    try {
+      doc.addImage(pm.logoBase64, "PNG", PAGE_W / 2 - 17, 24, 34, 34);
+      startY = 68;
+    } catch (e) {
+      console.warn("Error drawing cover logo:", e);
+    }
   }
 
-  // Highlight destinations
+  // 2. Modern pre-header subtitle (spaced-out uppercase)
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(6.5);
+  setColor(doc, t.secondary); // Electric Aqua
+  doc.text("P R E M I U M   T R A V E L   P R O P O S A L", PAGE_W / 2, startY, { align: "center" });
+
+  // 3. Main Trip Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(23);
+  setColor(doc, "#FFFFFF");
+  const titleLines = wrapText(doc, data.tripTitle || "Travel Itinerary", CONTENT_W - 24);
+  let titleY = startY + 11;
+  for (const line of titleLines) {
+    doc.text(cleanText(line), PAGE_W / 2, titleY, { align: "center" });
+    titleY += 10;
+  }
+
+  // 4. Highlight destinations (Vivid Tangerine)
   if (data.destinations.length > 0) {
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    setColor(doc, t.secondary); // Electric Aqua
-    const destText = data.destinations.join(" • ");
+    doc.setFontSize(9.5);
+    setColor(doc, t.primary); 
+    const destText = data.destinations.join("   •   ").toUpperCase();
     doc.text(cleanText(destText), PAGE_W / 2, titleY + 4, { align: "center" });
     titleY += 12;
   }
 
-  // Glassmorphic Info Card Block
-  titleY += 5;
-  setFillColor(doc, "#001D51");
-  setDrawColor(doc, t.secondary);
-  doc.setLineWidth(0.4);
-  doc.roundedRect(MARGIN_L + 10, titleY, CONTENT_W - 20, 16, 2, 2, "FD");
+  // 5. Sleek modern info dashboard card (border-less, slightly lighter solid navy background)
+  titleY += 6;
+  setFillColor(doc, "#0a224a"); // Solid lighter navy block
+  doc.roundedRect(MARGIN_L + 8, titleY, CONTENT_W - 16, 17, 2, 2, "F");
 
   const labelY = titleY + 6;
   const valY = titleY + 12;
-  const colW = (CONTENT_W - 20) / 3;
-  const x1 = MARGIN_L + 10 + colW / 2;
+  const colW = (CONTENT_W - 16) / 3;
+  const x1 = MARGIN_L + 8 + colW / 2;
   const x2 = x1 + colW;
   const x3 = x2 + colW;
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7);
-  setColor(doc, "#AAAAAA");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(6.5);
+  setColor(doc, "#88a3cf"); // Soft slate blue for labels
   doc.text("DURATION", x1, labelY, { align: "center" });
   doc.text("DATES", x2, labelY, { align: "center" });
   doc.text("TRAVELLERS", x3, labelY, { align: "center" });
@@ -303,13 +310,13 @@ function renderCover(pm: PageManager): void {
   const dateStr = data.startDate ? `${data.startDate}${data.endDate ? ` - ${data.endDate}` : ""}` : "Flexible";
   doc.text(cleanText(dateStr), x2, valY, { align: "center" });
 
-  doc.text(cleanText(data.pax ? `${data.pax} Pax` : "Flexible"), x3, valY, { align: "center" });
+  const paxText = data.pax ? `${data.pax} Guests` : "Flexible";
+  doc.text(cleanText(paxText), x3, valY, { align: "center" });
 
-  // Bottom footer area
+  // 6. Bottom footer area
   const bandY = PAGE_H - 42;
-  setDrawColor(doc, t.primary);
-  doc.setLineWidth(0.5);
-  doc.line(MARGIN_L, bandY, PAGE_W - MARGIN_R, bandY);
+  setFillColor(doc, t.primary); // Vivid Tangerine fine line
+  doc.rect(MARGIN_L, bandY, CONTENT_W, 0.4, "F");
 
   doc.setFont("helvetica", "italic");
   doc.setFontSize(8);
@@ -445,46 +452,48 @@ function renderAccommodation(pm: PageManager): void {
   for (const hotel of pm.data.accommodation) {
     pm.ensureSpace(20);
 
-    // Draw rounded card background in white
+    // Draw modern solid card container in white with clean thin slate borders
     setFillColor(doc, "#FFFFFF");
-    setDrawColor(doc, "#DAF561"); // Lime Cream border
-    doc.setLineWidth(0.4);
+    setDrawColor(doc, "#E2E8F0"); 
+    doc.setLineWidth(0.3);
     doc.roundedRect(MARGIN_L, pm.currentY, CONTENT_W, 14, 1.5, 1.5, "FD");
+
+    // Left vertical brand-accent color block (Vivid Tangerine block on the card's edge)
+    setFillColor(doc, t.primary);
+    doc.rect(MARGIN_L, pm.currentY, 1.5, 14, "F");
 
     // Hotel circle icon representation
     setFillColor(doc, t.tint);
-    doc.circle(MARGIN_L + 8, pm.currentY + 7, 4.5, "F");
+    doc.circle(MARGIN_L + 9, pm.currentY + 7, 4.2, "F");
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
     setColor(doc, t.primary);
-    doc.text("H", MARGIN_L + 6.8, pm.currentY + 9.5); // Simple H logo inside circle
+    doc.text("H", MARGIN_L + 7.8, pm.currentY + 9.5); // Simple H logo inside circle
 
     // Hotel Name
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     setColor(doc, t.dark);
     const hotelName = cleanText(hotel.name);
-    doc.text(hotelName.length > 55 ? hotelName.substring(0, 55) + "..." : hotelName, MARGIN_L + 16, pm.currentY + 5.5);
+    doc.text(hotelName.length > 55 ? hotelName.substring(0, 55) + "..." : hotelName, MARGIN_L + 17, pm.currentY + 5.5);
 
     // Location
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
     setColor(doc, "#555555");
-    doc.text(`Location: ${cleanText(hotel.location)}`, MARGIN_L + 16, pm.currentY + 10.5);
+    doc.text(`Location: ${cleanText(hotel.location)}`, MARGIN_L + 17, pm.currentY + 10.5);
 
-    // Star rating badge
+    // Star rating badge (cleaner, text-based)
     if (hotel.starRating) {
-      setFillColor(doc, t.primary);
-      doc.roundedRect(PAGE_W - MARGIN_R - 22, pm.currentY + 4.5, 18, 5, 1, 1, "F");
-      
       doc.setFont("helvetica", "bold");
       doc.setFontSize(6.5);
-      setColor(doc, "#FFFFFF");
-      doc.text(cleanText(hotel.starRating), PAGE_W - MARGIN_R - 13, pm.currentY + 8, { align: "center" });
+      setColor(doc, t.primary);
+      const starText = hotel.starRating.toUpperCase().includes("STAR") ? hotel.starRating.toUpperCase() : `${hotel.starRating.toUpperCase()} CLASS`;
+      doc.text(cleanText(starText), PAGE_W - MARGIN_R - 6, pm.currentY + 8.2, { align: "right" });
     }
 
-    pm.moveDown(18);
+    pm.moveDown(17);
   }
 
   pm.moveDown(2);
@@ -501,34 +510,38 @@ function renderTransport(pm: PageManager): void {
   for (const tp of pm.data.transport) {
     pm.ensureSpace(18);
 
-    // Rounded card background
+    // Draw card container in white with clean slate borders
     setFillColor(doc, "#FFFFFF");
-    setDrawColor(doc, t.secondary); // Electric Aqua border
-    doc.setLineWidth(0.4);
+    setDrawColor(doc, "#E2E8F0");
+    doc.setLineWidth(0.3);
     doc.roundedRect(MARGIN_L, pm.currentY, CONTENT_W, 12, 1.5, 1.5, "FD");
+
+    // Left vertical brand-accent color block (Electric Aqua block on the card's edge)
+    setFillColor(doc, t.secondary);
+    doc.rect(MARGIN_L, pm.currentY, 1.5, 12, "F");
 
     // Transport type circle
     setFillColor(doc, t.tint);
-    doc.circle(MARGIN_L + 8, pm.currentY + 6, 4, "F");
+    doc.circle(MARGIN_L + 9, pm.currentY + 6, 3.8, "F");
 
     const modeChar = tp.mode.substring(0, 1).toUpperCase();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(7.5);
     setColor(doc, t.dark);
-    doc.text(modeChar, MARGIN_L + 7, pm.currentY + 8.5);
+    doc.text(modeChar, MARGIN_L + 7.9, pm.currentY + 8.5);
 
     // Mode Title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8.5);
     setColor(doc, t.dark);
-    doc.text(cleanText(tp.mode).toUpperCase(), MARGIN_L + 15, pm.currentY + 5);
+    doc.text(cleanText(tp.mode).toUpperCase(), MARGIN_L + 17, pm.currentY + 5);
 
     // Details text
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
     setColor(doc, "#555555");
     const details = cleanText(tp.details);
-    doc.text(details.length > 85 ? details.substring(0, 85) + "..." : details, MARGIN_L + 15, pm.currentY + 9);
+    doc.text(details.length > 85 ? details.substring(0, 85) + "..." : details, MARGIN_L + 17, pm.currentY + 9);
 
     pm.moveDown(15);
   }
@@ -654,14 +667,16 @@ function renderInclusionsExclusions(pm: PageManager): void {
         rightY = pm.currentY + 5;
       }
 
-      // Draw small green bullet circle with indicator
+      // Draw small green bullet circle with vector checkmark
+      const bulletX = MARGIN_L + 4;
+      const bulletY = leftY + 1.5;
       setFillColor(doc, "#D1FAE5");
-      doc.circle(MARGIN_L + 4, leftY + 1.5, 1.8, "F");
+      doc.circle(bulletX, bulletY, 1.8, "F");
       
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(6.5);
-      setColor(doc, "#059669");
-      doc.text("Y", MARGIN_L + 3.0, leftY + 2.5); // Simple "Y" as check representation
+      setDrawColor(doc, "#059669");
+      doc.setLineWidth(0.35);
+      doc.line(bulletX - 0.9, bulletY + 0.1, bulletX - 0.2, bulletY + 0.8);
+      doc.line(bulletX - 0.2, bulletY + 0.8, bulletX + 1.0, bulletY - 0.6);
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7.5);
@@ -697,14 +712,16 @@ function renderInclusionsExclusions(pm: PageManager): void {
         rightY = pm.currentY + 5;
       }
 
-      // Draw small red cross circle
+      // Draw small red cross circle with vector X
+      const exBulletX = MARGIN_L + colW + 12;
+      const exBulletY = rightY + 1.5;
       setFillColor(doc, "#FEE2E2");
-      doc.circle(MARGIN_L + colW + 12, rightY + 1.5, 1.8, "F");
+      doc.circle(exBulletX, exBulletY, 1.8, "F");
       
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(6.5);
-      setColor(doc, "#EF4444");
-      doc.text("X", MARGIN_L + colW + 10.8, rightY + 2.5); // Simple "X" representation
+      setDrawColor(doc, "#EF4444");
+      doc.setLineWidth(0.35);
+      doc.line(exBulletX - 0.7, exBulletY - 0.7, exBulletX + 0.7, exBulletY + 0.7);
+      doc.line(exBulletX - 0.7, exBulletY + 0.7, exBulletX + 0.7, exBulletY - 0.7);
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(7.5);
@@ -801,8 +818,16 @@ function renderContactSection(pm: PageManager): void {
 // MAIN PDF GENERATOR
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function generateItineraryPDF(data: ItineraryData, action: "download" | "open" = "download"): void {
+export async function generateItineraryPDF(data: ItineraryData, action: "download" | "open" = "download"): Promise<void> {
   const theme = DESTINATION_THEMES[data.themeKey] || DESTINATION_THEMES.default;
+
+  // 1. Try preloading company logo image
+  let logoBase64: string | null = null;
+  try {
+    logoBase64 = await getBase64ImageFromUrl("/comfort-journey-logo.png");
+  } catch (e) {
+    console.warn("Failed to load Comfort Journey logo for PDF:", e);
+  }
 
   const doc = new jsPDF({
     orientation: "portrait",
@@ -814,14 +839,13 @@ export function generateItineraryPDF(data: ItineraryData, action: "download" | "
 
   // ── Page 1: Cover ──────────────────────────────────────────────────────
 
-  renderCover(
-    { doc, theme, data, currentY: 0, pageCount: 1 } as unknown as PageManager,
-  );
+  const coverPm = { doc, theme, data, currentY: 0, pageCount: 1, logoBase64 } as unknown as PageManager;
+  renderCover(coverPm);
 
   // ── Content Pages ──────────────────────────────────────────────────────
 
   doc.addPage();
-  const pm = new PageManager(doc, theme, data);
+  const pm = new PageManager(doc, theme, data, logoBase64);
   pm.pageCount = 2;
   pm.currentY = MARGIN_T;
 

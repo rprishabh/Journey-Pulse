@@ -243,7 +243,14 @@ function extractDates(text: string): { start: string; end: string } {
 
 /** Extract pax count */
 function extractPax(text: string): string {
-  const m = text.match(/(\d+)\s*(?:pax|person[s]?|adult[s]?|traveller[s]?|guest[s]?|people)/i);
+  // 1. Check for explicit prefix labels (e.g. "Group Size: 18", "No. of Guests: 12", "Travellers: 15")
+  const groupSizeMatch = text.match(/(?:group\s+size|no\s*(?:of)?\s*(?:guests?|travellers?|pax|persons?)|total\s+(?:guests?|travellers?|pax|persons?)|travellers?|pax)\s*[:\-–—\s]\s*(\d+)/i);
+  if (groupSizeMatch) {
+    return groupSizeMatch[1];
+  }
+
+  // 2. Search for count next to words, allowing optional intermediate words (e.g. "18 Corporate Guests", "12 Adults")
+  const m = text.match(/(\d+)\s*(?:[a-zA-Z\s]{0,15})\s*(?:pax|person[s]?|adult[s]?|traveller[s]?|guest[s]?|people)/i);
   return m ? m[1] : "";
 }
 
@@ -433,6 +440,25 @@ export function preProcessPastedText(rawText: string): string {
     .replace(/\r/g, "\n")
     .replace(/\u00a0/g, " ")
     .replace(/[\u2002\u2003]/g, " ");
+
+  // ── Step 0a: Split ALL-CAPS words directly touching CamelCase words ──
+  // e.g. "INCLUSIONSPremium" → "INCLUSIONS\nPremium"
+  // e.g. "OVERVIEWDestination" → "OVERVIEW\nDestination"
+  text = text.replace(/([A-Z]{3,})([A-Z][a-z])/g, "$1\n$2");
+
+  // ── Step 0b: Split lowercase letters / numbers / parens touching key CamelCase labels ──
+  // e.g. "GuestsAccommodation" → "Guests\nAccommodation"
+  // e.g. "DaysDates" → "Days\nDates"
+  const splitKeywords = [
+    "Accommodation", "Day", "Duration", "Dates", "Group", "Inclusions", "Exclusions",
+    "Transport", "Pricing", "Meals", "Stay", "Confirmed", "Local", "Sightseeing",
+    "Villa", "Personal", "Entry", "Water", "Total", "Grand", "Package", "Destination",
+    "Onward", "Return", "Hotel", "No", "Property", "Notes"
+  ];
+  for (const kw of splitKeywords) {
+    const re = new RegExp(`([a-z0-9)])(${kw})`, "g");
+    text = text.replace(re, "$1\n$2");
+  }
 
   // ── Step 1: Newlines before emoji + text (section starters) ──────────
   // e.g. "  ❌ EXCLUSIONS" → "\n❌ EXCLUSIONS"
