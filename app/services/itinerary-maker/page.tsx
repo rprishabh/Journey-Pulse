@@ -38,7 +38,7 @@ import type {
   DestinationThemeKey,
 } from "@/types/itinerary";
 import { DESTINATION_THEMES } from "@/types/itinerary";
-import { parseItineraryContent, createBlankItinerary } from "@/lib/itinerary-parser";
+import { parseItineraryContent, createBlankItinerary, preProcessPastedText } from "@/lib/itinerary-parser";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SAMPLE ITINERARY TEXT (for placeholder / demo)
@@ -167,11 +167,15 @@ export default function ItineraryMakerPage() {
 
   const handleParse = useCallback(() => {
     if (!rawText.trim()) return;
-    const parsed = parseItineraryContent(rawText);
+    const formattedText = preProcessPastedText(rawText);
+    if (formattedText !== rawText) {
+      setRawText(formattedText);
+    }
+    const parsed = parseItineraryContent(formattedText);
     setItinerary(parsed);
     setIsParsed(true);
     setShowPreview(true);
-  }, [rawText]);
+  }, [rawText, setRawText]);
 
   // ── Load sample ───────────────────────────────────────────────────────
 

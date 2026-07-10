@@ -421,11 +421,54 @@ function parseContact(sectionText: string): Partial<ContactInfo> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// PASTE PRE-PROCESSOR (RESTORES SPACING & LINE BREAKS)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export function preProcessPastedText(rawText: string): string {
+  if (!rawText) return "";
+  
+  // Normalize newlines
+  let text = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  
+  // Count current newlines
+  const newlineCount = (text.match(/\n/g) || []).length;
+  
+  // If the text is reasonably long but contains very few newlines, it was likely merged on paste
+  if (newlineCount < 4 && text.length > 150) {
+    // 1. Split day plans: look for "Day X" preceded by spaces or text
+    text = text.replace(/(\s+)(day\s+\d+)\b/gi, "\n$2");
+    
+    // 2. Split sections: look for keywords followed by colons or spacing
+    const headers = [
+      "inclusions", "exclusions", "accommodation", "accommodation details", 
+      "transport", "transport details", "pricing", "pricing details", 
+      "terms & conditions", "terms", "contact us", "contact"
+    ];
+    for (const header of headers) {
+      const regex = new RegExp(`(\\s+)(${header})[:\\s\\-–—]`, "gi");
+      text = text.replace(regex, "\n$2: ");
+    }
+    
+    // 3. Split bullet points
+    text = text.replace(/(\s+)([-•*▪])(\s+)/g, "\n$2$3");
+    
+    // 4. Split key financial items
+    text = text.replace(/(\s+)(total|grand total|package cost|gst)[:\s]/gi, "\n$2: ");
+    
+    // Clean up multiple sequential newlines
+    text = text.replace(/\n+/g, "\n");
+  }
+  
+  return text;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // MAIN PARSER
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export function parseItineraryContent(rawText: string): ItineraryData {
-  const text = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const processedText = preProcessPastedText(rawText);
+  const text = processedText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   const lines = text.split("\n");
 
   const sections: Record<string, string[]> = {
