@@ -25,6 +25,9 @@ import {
   Sparkles,
   CalendarDays,
   TrendingUp,
+  FileText,
+  Coins,
+  Briefcase,
 } from "lucide-react";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -62,6 +65,16 @@ const NAV_ITEMS: NavItem[] = [
     href: "/travel-advisories",
     icon: Shield,
     description: "Safety alerts & travel warnings",
+  },
+  {
+    label: "Services",
+    href: "/services",
+    icon: Briefcase,
+    description: "Free travel tools & utilities",
+    children: [
+      { label: "Itinerary Maker", href: "/services/itinerary-maker", icon: FileText, description: "Generate beautiful itinerary PDFs" },
+      { label: "Forex Rates", href: "/services/forex", icon: Coins, description: "Live currency exchange rates" },
+    ],
   },
   {
     label: "Discover India",
