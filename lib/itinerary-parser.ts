@@ -64,53 +64,86 @@ const DESTINATION_THEME_MAP: Record<string, DestinationThemeKey> = {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function detectHeader(line: string): string | null {
-  // Clean punctuation and markdown notation
-  const clean = line.trim().toLowerCase().replace(/^[\s\-–—.*•▪#]+/, "").replace(/[:\-–—.*•▪\s]+$/, "").trim();
+  const rawTrimmed = line.trim();
+  // Clean punctuation, markdown notation, and emoji
+  const clean = rawTrimmed
+    .replace(/^[\s\-–—.*•▪#📅🏨✈️✅❌💰📞🏖️🏔️]+/u, "")
+    .replace(/[:\-–—.*•▪\s]+$/, "")
+    .trim()
+    .toLowerCase();
   
-  if (/^day\s*(\d+)/i.test(clean) || /^day[-–—\s]*wise\s*itinerary/i.test(clean) || /^day\s*plan/i.test(clean) || /^itinerary/i.test(clean)) {
+  // ── Overview / Proposal headers (skip these — they are NOT content) ──
+  if (
+    /^(overview|proposal\s*overview|proposal|trip\s*overview|itinerary\s*overview|summary)$/i.test(clean)
+  ) {
+    return "title"; // routes into title section, but extractTripTitle will skip it
+  }
+
+  // ── Day plan ──
+  if (
+    /^day\s*[-–—:.]?\s*\d+/i.test(clean) ||
+    /^day[-–—\s]*(?:by[-–—\s]*day)?\s*(?:wise)?\s*itinerary/i.test(clean) ||
+    /^day\s*plan/i.test(clean) ||
+    /^itinerary$/i.test(clean)
+  ) {
     return "dayPlan";
   }
   
+  // ── Inclusions (match with or without trailing content) ──
   if (
-    /^(inclusions?|included|what's\s+included|what\s+is\s+included|package\s+includes?|cost\s+includes?|price\s+includes?|includes)$/i.test(clean) ||
-    /^(inclusions?|included|package\s+includes?|cost\s+includes?):\s*$/i.test(line.trim())
+    /^(inclusions?|included|what'?s\s+included|what\s+is\s+included|package\s+includes?|cost\s+includes?|price\s+includes?|includes)(\s|$)/i.test(clean)
   ) {
     return "inclusions";
   }
   
+  // ── Exclusions (match with or without trailing "& property notes" etc.) ──
   if (
-    /^(exclusions?|excluded|what's\s+not\s+included|what\s+is\s+not\s+included|package\s+excludes?|cost\s+excludes?|price\s+excludes?|excludes|not\s+included)$/i.test(clean) ||
-    /^(exclusions?|excluded|package\s+excludes?|cost\s+excludes?):\s*$/i.test(line.trim())
+    /^(exclusions?|excluded|what'?s\s+not\s+included|what\s+is\s+not\s+included|package\s+excludes?|cost\s+excludes?|price\s+excludes?|excludes|not\s+included)(\s|$)/i.test(clean) ||
+    /^property\s+notes?/i.test(clean)
   ) {
     return "exclusions";
   }
+
+  // ── Emoji-only section markers ──
+  // A line that is JUST an emoji marker (like ❌ or ✅) signals a section change
+  if (/^[\s]*[❌✖️⛔🚫][\s]*$/u.test(rawTrimmed)) {
+    return "exclusions";
+  }
+  if (/^[\s]*[✅✔️☑️][\s]*$/u.test(rawTrimmed)) {
+    return "inclusions";
+  }
   
+  // ── Accommodation ──
   if (
-    /^(accommodations?|hotels?|stays?|resorts?|lodgings?|where\s+you'll\s+stay|stay\s+details|hotel\s+details)$/i.test(clean)
+    /^(accommodations?|hotels?|stays?|resorts?|lodgings?|where\s+you'?ll\s+stay|stay\s+details?|hotel\s+details?|accommodation\s+details?)/i.test(clean)
   ) {
     return "accommodation";
   }
   
+  // ── Transport ──
   if (
-    /^(transports?|transportations?|travel|flights?|trains?|transfers?|cabs?|vehicles?)$/i.test(clean)
+    /^(transports?|transportations?|travel\s+details?|flights?|trains?|transfers?|cabs?|vehicles?|transport\s+details?)/i.test(clean)
   ) {
     return "transport";
   }
   
+  // ── Pricing ──
   if (
-    /^(pricing|price|cost|rates?|package\s+cost|tour\s+cost|charges?|tariff|budget|pricing\s+details|cost\s+breakdown)$/i.test(clean)
+    /^(pricing|price|cost|rates?|package\s+cost|tour\s+cost|charges?|tariff|budget|pricing\s+details?|cost\s+breakdown|total\s+investment)/i.test(clean)
   ) {
     return "pricing";
   }
   
+  // ── Terms ──
   if (
-    /^(terms?\s*(?:&|and)?\s*conditions?|t&c|t\s*&\s*c|cancellation\s*polic(y|ies)|important\s*notes?|notes?|policies|fine\s*print)$/i.test(clean)
+    /^(terms?\s*(?:&|and)?\s*conditions?|t&c|t\s*&\s*c|cancellation\s*polic(?:y|ies)|important\s*notes?|policies|fine\s*print)$/i.test(clean)
   ) {
     return "terms";
   }
   
+  // ── Contact ──
   if (
-    /^(contact\s*(?:us|info|details)?|reach\s*us|get\s*in\s*touch|booking\s*office|book\s*with\s*us|for\s*bookings?|for\s*enquir(y|ies))$/i.test(clean)
+    /^(contact\s*(?:us|info|details?)?|reach\s*us|get\s*in\s*touch|booking\s*office|book\s*with\s*us|for\s*bookings?|for\s*enquir(?:y|ies))$/i.test(clean)
   ) {
     return "contact";
   }
@@ -206,11 +239,37 @@ function extractDestinationsSmart(text: string, title: string, hotels: Accommoda
 function extractTripTitle(text: string): string {
   const lines = text.split("\n").filter(l => l.trim().length > 0);
 
-  // Look for lines that seem like a title (short, possibly capitalised)
-  for (const line of lines.slice(0, 5)) {
+  // Words that are section headers, NOT titles
+  const SKIP_WORDS = /^(overview|proposal\s*overview|proposal|summary|itinerary|trip\s*overview|comfort\s*journey|inclusions?|exclusions?|terms?|contact|pricing|transport|accommodation)/i;
+  // Words that indicate metadata labels, NOT titles
+  const META_LABELS = /^(destination|duration|dates?|group\s+size|accommodation|villa|hotel|phone|email|address|website|pax|travellers?|guests?)\s*[:\-–—]/i;
+
+  // 1. BEST: Look for an explicit "Destination:" label and use its value
+  for (const line of lines.slice(0, 12)) {
+    const destMatch = line.match(/^\s*destination\s*[:\-–—]\s*(.+)/i);
+    if (destMatch) {
+      const val = destMatch[1].trim().replace(/[:\-–—.]+$/, "").trim();
+      if (val.length > 3) return val;
+    }
+  }
+
+  // 2. GOOD: Look for a real title line (not a header, not a metadata label)
+  for (const line of lines.slice(0, 8)) {
     const clean = line.trim();
+    // Skip known section headers
     if (detectHeader(clean)) continue;
-    if (clean.length > 5 && clean.length < 120 && !/^\s*[-•*]/.test(clean)) {
+    // Skip words that are just section labels
+    if (SKIP_WORDS.test(clean)) continue;
+    // Skip metadata key:value lines
+    if (META_LABELS.test(clean)) continue;
+    // Skip very short or bullet lines
+    if (clean.length <= 5 || /^\s*[-•*▪]/.test(clean)) continue;
+    // Skip lines that look like addresses or phone numbers
+    if (/^\s*[\+]?\d{2,}/.test(clean) || /shop\s*no/i.test(clean)) continue;
+    // Skip lines that are just company name + tagline
+    if (/^comfort\s*journey/i.test(clean)) continue;
+
+    if (clean.length < 120) {
       return clean.replace(/^[-–—:.\s]+/, "").replace(/[-–—:.\s]+$/, "");
     }
   }
