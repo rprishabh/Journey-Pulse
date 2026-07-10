@@ -426,41 +426,104 @@ function parseContact(sectionText: string): Partial<ContactInfo> {
 
 export function preProcessPastedText(rawText: string): string {
   if (!rawText) return "";
-  
-  // Normalize newlines
-  let text = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  
-  // Count current newlines
-  const newlineCount = (text.match(/\n/g) || []).length;
-  
-  // If the text is reasonably long but contains very few newlines, it was likely merged on paste
-  if (newlineCount < 4 && text.length > 150) {
-    // 1. Split day plans: look for "Day X" preceded by spaces or text
-    text = text.replace(/(\s+)(day\s+\d+)\b/gi, "\n$2");
-    
-    // 2. Split sections: look for keywords followed by colons or spacing
-    const headers = [
-      "inclusions", "exclusions", "accommodation", "accommodation details", 
-      "transport", "transport details", "pricing", "pricing details", 
-      "terms & conditions", "terms", "contact us", "contact"
-    ];
-    for (const header of headers) {
-      const regex = new RegExp(`(\\s+)(${header})[:\\s\\-–—]`, "gi");
-      text = text.replace(regex, "\n$2: ");
-    }
-    
-    // 3. Split bullet points
-    text = text.replace(/(\s+)([-•*▪])(\s+)/g, "\n$2$3");
-    
-    // 4. Split key financial items
-    text = text.replace(/(\s+)(total|grand total|package cost|gst)[:\s]/gi, "\n$2: ");
-    
-    // Clean up multiple sequential newlines
-    text = text.replace(/\n+/g, "\n");
+
+  // Normalize newlines and unicode whitespace
+  let text = rawText
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/\u00a0/g, " ")
+    .replace(/[\u2002\u2003]/g, " ");
+
+  // ── Step 1: Newlines before emoji + text (section starters) ──────────
+  // e.g. "  ❌ EXCLUSIONS" → "\n❌ EXCLUSIONS"
+  text = text.replace(
+    /[ \t]+([\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}])/gu,
+    "\n$1"
+  );
+
+  // ── Step 2: Newlines before ALL-CAPS section headings ────────────────
+  // e.g. " EXCLUSIONS & PROPERTY NOTES" → "\nEXCLUSIONS & PROPERTY NOTES"
+  const capsPatterns = [
+    "INCLUSIONS?",
+    "EXCLUSIONS?(?:\\s*(?:&|AND)\\s*PROPERTY\\s+NOTES?)?",
+    "PROPERTY\\s+NOTES?",
+    "TOTAL\\s+INVESTMENT",
+    "GRAND\\s+TOTAL",
+    "PACKAGE\\s+COST",
+    "PRICING\\s+(?:DETAILS?)?",
+    "TRANSPORT(?:ATION)?\\s*(?:DETAILS?)?",
+    "ACCOMMODATION\\s*(?:DETAILS?)?",
+    "HOTEL\\s+DETAILS?",
+    "FLIGHT\\s+(?:UPGRADE|DETAILS?|OPTIONS?)",
+    "TERMS?\\s*(?:&|AND)\\s*CONDITIONS?",
+    "CONTACT\\s*(?:US|DETAILS?)?",
+    "IMPORTANT\\s+NOTES?",
+    "OVERVIEW",
+  ];
+  for (const p of capsPatterns) {
+    const re = new RegExp(`[ \\t]+(${p})(?=[\\s:!])`, "g");
+    text = text.replace(re, "\n$1");
   }
-  
+
+  // ── Step 3: Newlines before Day X patterns ────────────────────────────
+  // e.g. " Day 1", " DAY 2 -"
+  text = text.replace(/[ \t]+((?:Day|DAY)\s+\d+\b)/g, "\n$1");
+
+  // ── Step 4: Newlines before "Label:" colon patterns ──────────────────
+  // e.g. " Meals: Daily breakfast" → "\nMeals: Daily breakfast"
+  const labelPatterns = [
+    "Meals?",
+    "Breakfast",
+    "Lunch",
+    "Dinner",
+    "Overnight",
+    "Confirmed\\s+Transit",
+    "Local\\s+Logistics",
+    "Sightseeing",
+    "No\\s+Hidden\\s+Fees?",
+    "Accommodation\\s*Details?",
+    "Hotel\\s*Details?",
+    "Transport(?:ation)?\\s*Details?",
+    "Inclusions?",
+    "Exclusions?",
+    "Pricing\\s*Details?",
+    "Package\\s+Cost",
+    "Terms?\\s*(?:&|And)?\\s*Conditions?",
+    "Contact\\s*(?:Us|Details?)?",
+    "Villa\\s+Dining\\s+Note",
+    "Personal\\s+Expenses?",
+    "Entry\\s+Tickets?",
+    "Water\\s+Sports?",
+    "Stay",
+  ];
+  for (const label of labelPatterns) {
+    const re = new RegExp(`[ \\t]+(${label})[ \\t]*:`, "gi");
+    text = text.replace(re, "\n$1:");
+  }
+
+  // ── Step 5: Newlines before bullet/check characters ───────────────────
+  text = text.replace(/[ \t]+([-•*▪▸►✓✔])[ \t]+/g, "\n$1 ");
+
+  // ── Step 6: Key financial line starters ──────────────────────────────
+  text = text.replace(
+    /[ \t]+((?:Total|Grand\s+Total|GST|Package\s+Cost|Amount|Payment|Advance|Balance)[ :₹])/gi,
+    "\n$1"
+  );
+
+  // ── Step 7: Double-space as paragraph separator (rich-text copies) ───
+  // Two or more spaces before an uppercase word signals new item
+  text = text.replace(/  +([A-Z])/g, "\n$1");
+
+  // ── Step 8: Clean up ──────────────────────────────────────────────────
+  text = text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0)
+    .join("\n");
+
   return text;
 }
+
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN PARSER

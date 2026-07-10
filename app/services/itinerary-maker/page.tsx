@@ -468,7 +468,26 @@ export default function ItineraryMakerPage() {
                     setRawText(e.target.value);
                     setIsParsed(false);
                   }}
-                  placeholder="Paste your complete itinerary content here...&#10;&#10;Include details like:&#10;• Trip title and destinations&#10;• Day 1, Day 2, Day 3... with activities&#10;• Hotel/accommodation details&#10;• Transport (flights, trains, cabs)&#10;• Pricing breakdown&#10;• Inclusions &amp; Exclusions&#10;• Contact information&#10;&#10;The parser will automatically detect and structure all sections!"
+                  onPaste={(e) => {
+                    // Intercept paste: grab clipboard text, preprocess it, inject formatted text
+                    const clipboardText = e.clipboardData.getData("text");
+                    if (clipboardText) {
+                      e.preventDefault();
+                      const formatted = preProcessPastedText(clipboardText);
+                      // Insert formatted text at cursor position
+                      const target = e.currentTarget;
+                      const start = target.selectionStart ?? 0;
+                      const end = target.selectionEnd ?? 0;
+                      const currentVal = target.value;
+                      const newVal =
+                        currentVal.substring(0, start) +
+                        formatted +
+                        currentVal.substring(end);
+                      setRawText(newVal);
+                      setIsParsed(false);
+                    }
+                  }}
+                  placeholder={"Paste your complete itinerary content here...\n\nInclude details like:\n• Trip title and destinations\n• Day 1, Day 2, Day 3... with activities\n• Hotel/accommodation details\n• Transport (flights, trains, cabs)\n• Pricing breakdown\n• Inclusions & Exclusions\n• Contact information\n\nThe parser will automatically detect and structure all sections!"}
                   className="w-full h-[500px] p-5 rounded-2xl text-sm font-mono leading-relaxed
                     bg-white dark:bg-surface-900 border-2 border-surface-200 dark:border-surface-800
                     focus:border-sunset-1 dark:focus:border-sunset-1 focus:ring-4 focus:ring-sunset-1/10
@@ -476,6 +495,7 @@ export default function ItineraryMakerPage() {
                     placeholder:text-surface-400 dark:placeholder:text-surface-600"
                   spellCheck={false}
                 />
+
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
